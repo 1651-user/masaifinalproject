@@ -1,10 +1,16 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { validationResult } = require("express-validator");
 const supabase = require("../config/supabase");
 
 // Register
 const register = async (req, res, next) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ error: errors.array()[0].msg });
+        }
+
         const { email, password, name, role = "customer", store_name } = req.body;
 
         if (!email || !password || !name) {
@@ -53,6 +59,11 @@ const register = async (req, res, next) => {
 // Login
 const login = async (req, res, next) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ error: errors.array()[0].msg });
+        }
+
         const { email, password } = req.body;
 
         if (!email || !password) {
