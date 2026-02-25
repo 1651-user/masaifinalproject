@@ -29,6 +29,7 @@ export default function ProductDetail() {
 
     const handleAddToCart = async () => {
         if (!user) { toast.error("Please sign in to add to cart"); return; }
+        if (user.role === "vendor") { toast.error("Vendors cannot purchase products"); return; }
         try { await addToCart(product.id, quantity); toast.success("Added to cart!"); }
         catch { toast.error("Couldn't add to cart"); }
     };
@@ -73,11 +74,13 @@ export default function ProductDetail() {
                     <div>
                         <div className="relative aspect-square rounded-2xl overflow-hidden mb-3" style={{ background: "var(--bg-secondary)" }}>
                             <img src={images[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
-                            <button onClick={() => setWishlisted(!wishlisted)}
-                                className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center shadow-md"
-                                style={{ background: "white", color: wishlisted ? "#e56000" : "#767676" }}>
-                                <Heart size={18} className={wishlisted ? "fill-[#e56000]" : ""} />
-                            </button>
+                            {user?.role !== "vendor" && (
+                                <button onClick={() => setWishlisted(!wishlisted)}
+                                    className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center shadow-md"
+                                    style={{ background: "white", color: wishlisted ? "#e56000" : "#767676" }}>
+                                    <Heart size={18} className={wishlisted ? "fill-[#e56000]" : ""} />
+                                </button>
+                            )}
                         </div>
                         {images.length > 1 && (
                             <div className="flex gap-2.5">
@@ -130,26 +133,32 @@ export default function ProductDetail() {
                         <p className="text-sm leading-relaxed mb-6" style={{ color: "var(--text-secondary)" }}>{product.description}</p>
 
                         {product.stock > 0 ? (
-                            <div className="space-y-3">
-                                <div>
-                                    <p className="text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Quantity</p>
-                                    <div className="inline-flex items-center border-2 rounded-full" style={{ borderColor: "var(--border)" }}>
-                                        <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 py-2.5 hover:bg-[var(--bg-secondary)] rounded-l-full transition"><Minus size={14} style={{ color: "var(--text)" }} /></button>
-                                        <span className="w-10 text-center text-sm font-bold" style={{ color: "var(--text)" }}>{quantity}</span>
-                                        <button onClick={() => setQuantity(Math.min(product.stock, quantity + 1))} className="px-4 py-2.5 hover:bg-[var(--bg-secondary)] rounded-r-full transition"><Plus size={14} style={{ color: "var(--text)" }} /></button>
+                            user?.role === "vendor" ? (
+                                <div className="py-3 px-4 rounded-2xl text-sm font-medium" style={{ background: "var(--bg-secondary)", color: "var(--text-muted)", border: "1px solid var(--border-light)" }}>
+                                    You are viewing this as a vendor. Switch to a customer account to purchase.
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    <div>
+                                        <p className="text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Quantity</p>
+                                        <div className="inline-flex items-center border-2 rounded-full" style={{ borderColor: "var(--border)" }}>
+                                            <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 py-2.5 hover:bg-[var(--bg-secondary)] rounded-l-full transition"><Minus size={14} style={{ color: "var(--text)" }} /></button>
+                                            <span className="w-10 text-center text-sm font-bold" style={{ color: "var(--text)" }}>{quantity}</span>
+                                            <button onClick={() => setQuantity(Math.min(product.stock, quantity + 1))} className="px-4 py-2.5 hover:bg-[var(--bg-secondary)] rounded-r-full transition"><Plus size={14} style={{ color: "var(--text)" }} /></button>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <button onClick={handleAddToCart} className="btn-primary flex-1 !justify-center !text-base !py-3">
+                                            <ShoppingCart size={17} /> Add to cart
+                                        </button>
+                                        <button onClick={() => setWishlisted(!wishlisted)}
+                                            className="px-5 py-3 rounded-full border-2 transition"
+                                            style={{ borderColor: "var(--border)", color: wishlisted ? "var(--accent)" : "var(--text-secondary)" }}>
+                                            <Heart size={17} className={wishlisted ? "fill-[var(--accent)]" : ""} />
+                                        </button>
                                     </div>
                                 </div>
-                                <div className="flex gap-3">
-                                    <button onClick={handleAddToCart} className="btn-primary flex-1 !justify-center !text-base !py-3">
-                                        <ShoppingCart size={17} /> Add to cart
-                                    </button>
-                                    <button onClick={() => setWishlisted(!wishlisted)}
-                                        className="px-5 py-3 rounded-full border-2 transition"
-                                        style={{ borderColor: "var(--border)", color: wishlisted ? "var(--accent)" : "var(--text-secondary)" }}>
-                                        <Heart size={17} className={wishlisted ? "fill-[var(--accent)]" : ""} />
-                                    </button>
-                                </div>
-                            </div>
+                            )
                         ) : (
                             <div className="py-4 rounded-2xl text-center font-semibold text-red-600" style={{ background: "#fef2f2", border: "1px solid #fecaca" }}>Sold out</div>
                         )}

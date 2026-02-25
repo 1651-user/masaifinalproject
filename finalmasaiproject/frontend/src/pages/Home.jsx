@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Star, Truck, Shield, RefreshCw, Headphones } from "lucide-react";
+import { ArrowRight, Truck, Shield, RefreshCw, Headphones } from "lucide-react";
 import { productService, categoryService } from "../services";
 import ProductCard from "../components/ProductCard";
 
@@ -38,13 +38,8 @@ export default function Home() {
                         <div style={{
                             gridColumn: "span 2",
                             position: "relative", borderRadius: 20, overflow: "hidden", minHeight: 320,
+                            background: "linear-gradient(135deg, var(--accent) 0%, #1a1a2e 100%)",
                         }}>
-                            <img
-                                src="https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=1200&h=500&fit=crop"
-                                alt="Shop local"
-                                style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
-                            />
-                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 55%, transparent 100%)" }} />
                             <div style={{ position: "relative", padding: "clamp(28px, 5vw, 52px)", display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 320 }}>
                                 <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)", marginBottom: 12 }}>
                                     ShopLocal picks
@@ -60,16 +55,13 @@ export default function Home() {
 
                         {/* Side banners */}
                         {[
-                            { img: "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=600&h=300&fit=crop", label: "Handmade gifts", cat: "handmade" },
-                            { img: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&h=300&fit=crop", label: "Fashion finds", cat: "clothing" },
+                            { label: "Handmade gifts", cat: "handmade", bg: "linear-gradient(135deg, #f97316 0%, #dc2626 100%)" },
+                            { label: "Fashion finds", cat: "clothing", bg: "linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)" },
                         ].map((b) => (
                             <Link key={b.label} to={`/products?category=${b.cat}`}
-                                style={{ position: "relative", borderRadius: 16, overflow: "hidden", minHeight: 150, display: "block", textDecoration: "none" }}
+                                style={{ position: "relative", borderRadius: 16, overflow: "hidden", minHeight: 150, display: "flex", alignItems: "flex-end", textDecoration: "none", background: b.bg }}
                                 className="group">
-                                <img src={b.img} alt={b.label} className="listing-img"
-                                    style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }} />
-                                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%)" }} />
-                                <div style={{ position: "absolute", bottom: 16, left: 18 }}>
+                                <div style={{ padding: "16px 18px" }}>
                                     <p style={{ color: "white", fontWeight: 700, fontSize: 17, marginBottom: 3 }}>{b.label}</p>
                                     <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>
                                         Shop now <ArrowRight size={11} />
@@ -116,8 +108,10 @@ export default function Home() {
                                     className="group">
                                     <div style={{ width: 76, height: 76, borderRadius: "50%", overflow: "hidden", border: "2px solid var(--border-light)", transition: "border-color 0.2s, transform 0.2s" }}
                                         className="group-hover:border-[var(--accent)] group-hover:scale-105">
-                                        <img src={cat.image_url || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=200"} alt={cat.name}
-                                            style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                        {cat.image_url
+                                            ? <img src={cat.image_url} alt={cat.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                            : <div style={{ width: "100%", height: "100%", background: "var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "var(--text-muted)" }}>No image</div>
+                                        }
                                     </div>
                                     <span style={{ fontSize: 12, fontWeight: 600, textAlign: "center", color: "var(--text-secondary)", lineHeight: 1.3 }}>{cat.name}</span>
                                 </Link>
@@ -182,37 +176,13 @@ export default function Home() {
                                     Open your shop — it&apos;s free
                                 </Link>
                             </div>
-                            <div style={{ width: "clamp(160px, 15vw, 220px)", aspectRatio: "1", borderRadius: 20, overflow: "hidden", flexShrink: 0 }} className="hidden md:block">
-                                <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop" alt="Vendor" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                            </div>
+
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* ── Testimonials ── */}
-            <section style={{ padding: "52px 0", background: "var(--bg-secondary)" }}>
-                <div style={W}>
-                    <h2 className="section-title" style={{ textAlign: "center" }}>Loved by shoppers</h2>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 20 }}>
-                        {[
-                            { text: "Found the most beautiful hand-painted pottery. The vendor was amazing!", name: "Priya S.", rating: 5 },
-                            { text: "Great selection of local artisans. My go-to for unique gifts.", name: "Rohan M.", rating: 5 },
-                            { text: "Ordered twice now, always fast shipping and quality products.", name: "Anjali K.", rating: 5 },
-                        ].map((r) => (
-                            <div key={r.name} style={{ padding: "24px 28px", borderRadius: 20, background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
-                                <div style={{ display: "flex", gap: 2, marginBottom: 12 }}>
-                                    {[...Array(r.rating)].map((_, i) => <Star key={i} size={14} style={{ fill: "#e56000", color: "#e56000" }} />)}
-                                </div>
-                                <p style={{ fontSize: 14, lineHeight: 1.75, color: "var(--text-secondary)", marginBottom: 16 }}>
-                                    &ldquo;{r.text}&rdquo;
-                                </p>
-                                <p style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)" }}>— {r.name}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
+
         </div>
     );
 }

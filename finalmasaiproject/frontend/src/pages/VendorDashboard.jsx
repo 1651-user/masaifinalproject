@@ -26,6 +26,8 @@ export default function VendorDashboard() {
         name: "", description: "", price: "", compare_price: "",
         stock: "", category_id: "", images: "",
     });
+    const [imageMode, setImageMode] = useState("url"); // "url" | "device"
+    const [uploadingFiles, setUploadingFiles] = useState([]); // [{ name, status }]
 
     // Listing filters
     const [listSearch, setListSearch] = useState("");
@@ -75,6 +77,8 @@ export default function VendorDashboard() {
     const openNewForm = () => {
         setEditingId(null);
         setForm({ name: "", description: "", price: "", compare_price: "", stock: "", category_id: "", images: "" });
+        setImageMode("url");
+        setUploadingFiles([]);
         setShowForm(true);
         setTab("products");
     };
@@ -86,6 +90,8 @@ export default function VendorDashboard() {
             compare_price: p.compare_price || "", stock: p.stock,
             category_id: p.category_id || "", images: p.images?.join(", ") || "",
         });
+        setImageMode("url");
+        setUploadingFiles([]);
         setShowForm(true);
     };
 
@@ -105,18 +111,67 @@ export default function VendorDashboard() {
         try {
             if (editingId) {
                 await productService.update(editingId, payload);
-                toast.success("Listing updated ✓");
+                toast.success("Listing updated");
             } else {
                 await productService.create(payload);
-                toast.success("Listing published ✓");
+                toast.success("Listing published");
             }
             setShowForm(false);
             setEditingId(null);
             setForm({ name: "", description: "", price: "", compare_price: "", stock: "", category_id: "", images: "" });
+            setUploadingFiles([]);
             loadData();
         } catch (err) {
             toast.error(err.response?.data?.error || "Failed to save listing");
         }
+    };
+
+    const handleFileUpload = async (e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
+
+        const token = localStorage.getItem("token");
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+        const newEntries = files.map(f => ({ name: f.name, status: "uploading" }));
+        setUploadingFiles(prev => [...prev, ...newEntries]);
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const fd = new FormData();
+            fd.append("image", file);
+            try {
+                const res = await fetch(`${API_URL}/upload`, {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${token}` },
+                    body: fd,
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                // Append the returned URL to the images string
+                setForm(prev => ({
+                    ...prev,
+                    images: prev.images ? `${prev.images}, ${data.url}` : data.url,
+                }));
+                setUploadingFiles(prev => {
+                    const copy = [...prev];
+                    const idx = copy.findIndex(x => x.name === file.name && x.status === "uploading");
+                    if (idx !== -1) copy[idx] = { ...copy[idx], status: "done" };
+                    return copy;
+                });
+                toast.success(`${file.name} uploaded`);
+            } catch (err) {
+                setUploadingFiles(prev => {
+                    const copy = [...prev];
+                    const idx = copy.findIndex(x => x.name === file.name && x.status === "uploading");
+                    if (idx !== -1) copy[idx] = { ...copy[idx], status: "error" };
+                    return copy;
+                });
+                toast.error(`Failed to upload ${file.name}: ${err.message}`);
+            }
+        }
+        // Reset file input
+        e.target.value = "";
     };
 
     const handleDeleteProduct = async (id) => {
@@ -133,7 +188,7 @@ export default function VendorDashboard() {
                 discount_percent: parseInt(couponForm.discount_percent),
                 max_uses: parseInt(couponForm.max_uses),
             });
-            toast.success("Coupon created ✓");
+            toast.success("Coupon created");
             setShowCouponForm(false);
             setCouponForm({ code: "", discount_percent: "", max_uses: "100", expires_at: "" });
             loadData();
@@ -301,7 +356,7 @@ export default function VendorDashboard() {
                                 style={{ background: "var(--bg-card)", border: "2px solid var(--accent)" }}>
                                 <div className="flex items-center justify-between">
                                     <h3 className="font-bold text-base" style={{ color: "var(--text)" }}>
-                                        {editingId ? "✏️ Edit listing" : "📦 New listing"}
+                                        {editingId ? "Edit listing" : "New listing"}
                                     </h3>
                                     <button type="button" onClick={() => setShowForm(false)}
                                         className="p-1.5 rounded-full hover:bg-[var(--bg-secondary)]" style={{ color: "var(--text-muted)" }}>
@@ -345,30 +400,122 @@ export default function VendorDashboard() {
                                             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                                         </select>
                                     </div>
+                                    {/* Image section */}
                                     <div className="sm:col-span-2">
-                                        <label className="block text-xs font-semibold mb-1 uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
+                                        <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
                                             <ImageIcon size={11} className="inline mr-1" />
-                                            Image URLs (paste one or more, comma-separated)
+                                            Product Images
                                         </label>
-                                        <input type="text" value={form.images}
-                                            onChange={(e) => setForm({ ...form, images: e.target.value })}
-                                            className="input" placeholder="https://images.unsplash.com/... , https://..." />
-                                        <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
-                                            Tip: use <a href="https://unsplash.com" target="_blank" rel="noreferrer" className="underline">Unsplash</a> or <a href="https://imgur.com" target="_blank" rel="noreferrer" className="underline">Imgur</a> for free image hosting
-                                        </p>
+
+                                        {/* Toggle tabs */}
+                                        <div className="flex gap-1 mb-3">
+                                            {[
+                                                { k: "device", label: "Upload from device" },
+                                                { k: "url", label: "Paste URL" },
+                                            ].map(t => (
+                                                <button key={t.k} type="button"
+                                                    onClick={() => setImageMode(t.k)}
+                                                    className="text-xs font-semibold px-3 py-1.5 rounded-full transition"
+                                                    style={imageMode === t.k
+                                                        ? { background: "var(--accent)", color: "white" }
+                                                        : { background: "var(--bg-secondary)", color: "var(--text-secondary)", border: "1px solid var(--border-light)" }
+                                                    }>
+                                                    {t.label}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {/* Device upload */}
+                                        {imageMode === "device" && (
+                                            <div>
+                                                <label
+                                                    htmlFor="img-file-input"
+                                                    style={{
+                                                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                                                        gap: 8, padding: "24px 16px", borderRadius: 12,
+                                                        border: "2px dashed var(--border)", cursor: "pointer",
+                                                        background: "var(--bg-secondary)", transition: "border-color 0.2s",
+                                                    }}
+                                                    onDragOver={e => e.preventDefault()}
+                                                >
+                                                    <ImageIcon size={28} style={{ color: "var(--text-muted)" }} />
+                                                    <p style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)" }}>Click to choose photos</p>
+                                                    <p style={{ fontSize: 11, color: "var(--text-muted)" }}>JPG, PNG, WebP · Max 5MB each · Multiple allowed</p>
+                                                    <input
+                                                        id="img-file-input"
+                                                        type="file"
+                                                        accept="image/jpeg,image/png,image/webp,image/gif"
+                                                        multiple
+                                                        style={{ display: "none" }}
+                                                        onChange={handleFileUpload}
+                                                    />
+                                                </label>
+
+                                                {/* Upload progress list */}
+                                                {uploadingFiles.length > 0 && (
+                                                    <div className="mt-2 space-y-1">
+                                                        {uploadingFiles.map((f, i) => (
+                                                            <div key={i} className="flex items-center gap-2 text-xs px-2 py-1 rounded-lg"
+                                                                style={{ background: "var(--bg-secondary)" }}>
+                                                                <span style={{
+                                                                    color: f.status === "done" ? "var(--success)" : f.status === "error" ? "#ef4444" : "var(--accent)"
+                                                                }}>
+                                                                    {f.status === "done" ? "Done" : f.status === "error" ? "Failed" : "..."}
+                                                                </span>
+                                                                <span className="line-clamp-1" style={{ color: "var(--text-secondary)" }}>{f.name}</span>
+                                                                <span className="ml-auto font-semibold" style={{
+                                                                    color: f.status === "done" ? "var(--success)" : f.status === "error" ? "#ef4444" : "var(--text-muted)"
+                                                                }}>
+                                                                    {f.status === "done" ? "Uploaded" : f.status === "error" ? "Failed" : "Uploading…"}
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* URL paste */}
+                                        {imageMode === "url" && (
+                                            <div>
+                                                <input type="text" value={form.images}
+                                                    onChange={(e) => setForm({ ...form, images: e.target.value })}
+                                                    className="input" placeholder="https://... , https://... (comma-separated)" />
+                                                <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+                                                    Paste one or more image URLs separated by commas
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Preview all images (from both upload & URL) */}
+                                        {form.images && (
+                                            <div className="flex gap-2 flex-wrap mt-3">
+                                                {form.images.split(",").map((url, i) => url.trim() && (
+                                                    <div key={i} style={{ position: "relative" }}>
+                                                        <img src={url.trim()} alt="" className="w-20 h-20 rounded-xl object-cover"
+                                                            style={{ border: "1px solid var(--border)" }}
+                                                            onError={(e) => { e.target.style.display = "none"; }} />
+                                                        <button type="button"
+                                                            onClick={() => {
+                                                                const updated = form.images.split(",").map(s => s.trim()).filter((s, idx) => idx !== i).join(", ");
+                                                                setForm({ ...form, images: updated });
+                                                            }}
+                                                            style={{
+                                                                position: "absolute", top: -6, right: -6, width: 20, height: 20,
+                                                                borderRadius: "50%", background: "#ef4444", color: "white",
+                                                                fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center",
+                                                                boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+                                                            }}
+                                                        >×</button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
-                                {/* Image preview */}
-                                {form.images && (
-                                    <div className="flex gap-2 flex-wrap">
-                                        {form.images.split(",").map((url, i) => url.trim() && (
-                                            <img key={i} src={url.trim()} alt="" className="w-20 h-20 rounded-xl object-cover border"
-                                                style={{ borderColor: "var(--border)" }}
-                                                onError={(e) => { e.target.style.display = "none"; }} />
-                                        ))}
-                                    </div>
-                                )}
+                                {/* Image preview is now handled inside the image section above */}
+
 
                                 <div className="flex gap-2 pt-1">
                                     <button type="submit" className="btn-primary !text-sm !py-2 flex items-center gap-1.5">
@@ -404,8 +551,12 @@ export default function VendorDashboard() {
                                         <div key={p.id} className="flex items-center gap-4 rounded-2xl p-4"
                                             style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
                                             <div className="relative shrink-0">
-                                                <img src={p.images?.[0] || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=120"}
-                                                    alt="" className="w-16 h-16 rounded-xl object-cover" />
+                                                {p.images?.[0] ? (
+                                                    <img src={p.images[0]} alt="" className="w-16 h-16 rounded-xl object-cover" />
+                                                ) : (
+                                                    <div className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl"
+                                                        style={{ background: "var(--border)" }}>No image</div>
+                                                )}
                                                 {p.stock < 10 && (
                                                     <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center">
                                                         <AlertTriangle size={9} className="text-white" />

@@ -21,6 +21,7 @@ export default function ProductCard({ product }) {
         e.preventDefault();
         e.stopPropagation();
         if (!user) { toast.error("Sign in to add to cart"); return; }
+        if (user.role === "vendor") { toast.error("Vendors cannot purchase products"); return; }
         setAdding(true);
         try { await addToCart(product.id, 1); toast.success("Added to cart!"); }
         catch { toast.error("Couldn't add to cart"); }
@@ -34,7 +35,7 @@ export default function ProductCard({ product }) {
         toast.success(wishlisted ? "Removed from favourites" : "Saved to favourites");
     };
 
-    const img = product.images?.[0] || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400";
+    const img = product.images?.[0] || null;
     const rating = product.avg_rating || 0;
     const reviewCount = product.review_count || 0;
 
@@ -48,12 +49,18 @@ export default function ProductCard({ product }) {
         >
             {/* Image */}
             <div style={{ position: "relative", aspectRatio: "1", borderRadius: 16, overflow: "hidden", background: "var(--bg-secondary)", marginBottom: 12 }}>
-                <img
-                    src={img}
-                    alt={product.name}
-                    className="listing-img"
-                    style={{ width: "100%", height: "100%", objectFit: "cover", transform: hovered ? "scale(1.06)" : "scale(1)", transition: "transform 0.5s ease" }}
-                />
+                {img ? (
+                    <img
+                        src={img}
+                        alt={product.name}
+                        className="listing-img"
+                        style={{ width: "100%", height: "100%", objectFit: "cover", transform: hovered ? "scale(1.06)" : "scale(1)", transition: "transform 0.5s ease" }}
+                    />
+                ) : (
+                    <div style={{ width: "100%", height: "100%", background: "var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "var(--text-muted)" }}>
+                        No image
+                    </div>
+                )}
 
                 {/* Badges */}
                 <div style={{ position: "absolute", top: 10, left: 10, display: "flex", flexDirection: "column", gap: 5 }}>
@@ -75,24 +82,26 @@ export default function ProductCard({ product }) {
                 </div>
 
                 {/* Wishlist */}
-                <button
-                    onClick={handleWishlist}
-                    style={{
-                        position: "absolute", top: 10, right: 10,
-                        width: 34, height: 34, borderRadius: "50%",
-                        background: "rgba(255,255,255,0.92)",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        transition: "transform 0.15s",
-                        boxShadow: "0 1px 6px rgba(0,0,0,0.15)",
-                        transform: hovered || wishlisted ? "scale(1)" : "scale(0)",
-                        opacity: hovered || wishlisted ? 1 : 0,
-                    }}
-                >
-                    <Heart size={16} style={{ color: wishlisted ? "var(--accent)" : "#767676", fill: wishlisted ? "var(--accent)" : "none" }} />
-                </button>
+                {user?.role !== "vendor" && (
+                    <button
+                        onClick={handleWishlist}
+                        style={{
+                            position: "absolute", top: 10, right: 10,
+                            width: 34, height: 34, borderRadius: "50%",
+                            background: "rgba(255,255,255,0.92)",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            transition: "transform 0.15s",
+                            boxShadow: "0 1px 6px rgba(0,0,0,0.15)",
+                            transform: hovered || wishlisted ? "scale(1)" : "scale(0)",
+                            opacity: hovered || wishlisted ? 1 : 0,
+                        }}
+                    >
+                        <Heart size={16} style={{ color: wishlisted ? "var(--accent)" : "#767676", fill: wishlisted ? "var(--accent)" : "none" }} />
+                    </button>
+                )}
 
-                {/* Quick add */}
-                {product.stock > 0 && (
+                {/* Quick add — customers only */}
+                {product.stock > 0 && user?.role !== "vendor" && (
                     <div style={{
                         position: "absolute", bottom: 0, left: 0, right: 0,
                         padding: "10px 12px",
