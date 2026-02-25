@@ -4,7 +4,7 @@ ShopLocal is a multi-vendor e-commerce platform that allows small businesses and
 
 ## Live
 
-Backend: https://masaifinalproject-backend.onrender.com
+Backend: https://masaifinalproject-backend.onrender.com/api/orders
 
 ## Tech Stack
 
