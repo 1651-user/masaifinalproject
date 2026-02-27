@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
+import { WishlistProvider } from "./context/WishlistContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -61,17 +62,19 @@ export default function App() {
             <ThemeProvider>
                 <AuthProvider>
                     <CartProvider>
-                        <div className="flex flex-col min-h-screen">
-                            <Navbar />
-                            <main className="flex-1">
-                                <AppRoutes />
-                            </main>
-                            <Footer />
-                        </div>
-                        <Toaster position="top-right" toastOptions={{
-                            style: { background: "var(--color-bg-card)", color: "var(--color-text)", border: "1px solid var(--color-border)" },
-                            duration: 3000,
-                        }} />
+                        <WishlistProvider>
+                            <div className="flex flex-col min-h-screen">
+                                <Navbar />
+                                <main className="flex-1">
+                                    <AppRoutes />
+                                </main>
+                                <Footer />
+                            </div>
+                            <Toaster position="top-right" toastOptions={{
+                                style: { background: "var(--color-bg-card)", color: "var(--color-text)", border: "1px solid var(--color-border)" },
+                                duration: 3000,
+                            }} />
+                        </WishlistProvider>
                     </CartProvider>
                 </AuthProvider>
             </ThemeProvider>

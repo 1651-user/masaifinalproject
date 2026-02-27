@@ -3,6 +3,7 @@ import { Heart, ShoppingCart, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { wishlistService } from "../services";
 import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 import { formatPrice } from "../utils/helpers";
 import toast from "react-hot-toast";
 
@@ -10,14 +11,17 @@ export default function Wishlist() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const { addToCart } = useCart();
+    const { removeFromWishlist } = useWishlist();
 
     useEffect(() => {
-        wishlistService.getAll().then((r) => setItems(r.data)).catch(() => { }).finally(() => setLoading(false));
+        wishlistService.get().then((r) => setItems(r.data)).catch(() => { }).finally(() => setLoading(false));
     }, []);
 
     const remove = async (productId) => {
-        try { await wishlistService.remove(productId); setItems(items.filter((i) => i.product_id !== productId)); toast.success("Removed from favourites"); }
-        catch { toast.error("Failed to remove"); }
+        const success = await removeFromWishlist(productId);
+        if (success) {
+            setItems(items.filter((i) => i.product_id !== productId));
+        }
     };
 
     const handleAddToCart = async (productId) => {

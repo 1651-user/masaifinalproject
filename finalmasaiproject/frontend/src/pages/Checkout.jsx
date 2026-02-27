@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, Tag } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { orderService, couponService } from "../services";
 import { formatPrice } from "../utils/helpers";
@@ -8,12 +9,19 @@ import toast from "react-hot-toast";
 
 export default function Checkout() {
     const { items, total, clearCart } = useCart();
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [couponCode, setCouponCode] = useState("");
     const [discount, setDiscount] = useState(0);
     const [couponApplied, setCouponApplied] = useState(false);
-    const [form, setForm] = useState({ street: "", city: "", state: "", zip: "", payment_method: "cod" });
+    const [form, setForm] = useState({
+        street: user?.address?.street || "",
+        city: user?.address?.city || "",
+        state: user?.address?.state || "",
+        zip: user?.address?.zip || "",
+        payment_method: "cod"
+    });
 
     const handleCoupon = async () => {
         if (!couponCode) return;
@@ -36,6 +44,7 @@ export default function Checkout() {
         try {
             await orderService.create({ shipping_address: form, payment_method: form.payment_method, coupon_code: discount > 0 ? couponCode : undefined });
             toast.success("Order placed successfully!");
+            clearCart();
             navigate("/dashboard");
         } catch (e) { toast.error(e.response?.data?.error || "Failed to place order"); }
         setLoading(false);

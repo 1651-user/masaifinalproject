@@ -3,14 +3,16 @@ import { Link } from "react-router-dom";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { useWishlist } from "../context/WishlistContext";
 import { formatPrice } from "../utils/helpers";
 import toast from "react-hot-toast";
 
 export default function ProductCard({ product }) {
     const { user } = useAuth();
     const { addToCart } = useCart();
+    const { isWishlisted, toggleWishlist } = useWishlist();
     const [hovered, setHovered] = useState(false);
-    const [wishlisted, setWishlisted] = useState(false);
+    const wishlisted = user ? isWishlisted(product.id) : false;
     const [adding, setAdding] = useState(false);
 
     const discount = product.compare_price > product.price
@@ -28,11 +30,10 @@ export default function ProductCard({ product }) {
         finally { setAdding(false); }
     };
 
-    const handleWishlist = (e) => {
+    const handleWishlist = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        setWishlisted(!wishlisted);
-        toast.success(wishlisted ? "Removed from favourites" : "Saved to favourites");
+        await toggleWishlist(product.id);
     };
 
     const img = product.images?.[0] || null;

@@ -29,6 +29,17 @@ export default function CustomerDashboard() {
         catch { toast.error("Failed to update profile"); }
     };
 
+    const handleCancelOrder = async (orderId) => {
+        if (!window.confirm("Are you sure you want to cancel this order? Stock will be returned.")) return;
+        try {
+            const res = await orderService.cancel(orderId);
+            setOrders(orders.map((o) => o.id === orderId ? { ...o, status: res.data.status } : o));
+            toast.success("Order cancelled.");
+        } catch (err) {
+            toast.error(err.response?.data?.error || "Could not cancel order.");
+        }
+    };
+
     const tabs = [
         { k: "orders", l: "My Orders", icon: Package },
         { k: "profile", l: "Account", icon: User },
@@ -81,11 +92,21 @@ export default function CustomerDashboard() {
                                         <span>{formatDate(order.created_at)}</span>
                                         <span className={`badge ${getStatusColor(order.status)}`}>{order.status}</span>
                                     </div>
-                                    <span className="text-sm font-bold" style={{ color: "var(--text)" }}>{formatPrice(order.total)}</span>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-sm font-bold" style={{ color: "var(--text)" }}>{formatPrice(order.total)}</span>
+                                        {order.status !== "cancelled" && (
+                                            <button
+                                                onClick={() => handleCancelOrder(order.id)}
+                                                className="text-xs font-semibold px-3 py-1 rounded-full border transition hover:bg-red-50"
+                                                style={{ color: "#dc2626", borderColor: "#fca5a5" }}
+                                            >
+                                                Cancel
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="px-5 py-4">
-                                    <p className="text-xs mb-3 font-medium" style={{ color: "var(--text-muted)" }}>{order.order_items?.length || 0} item(s)</p>
-                                    <div className="flex items-center gap-0">
+                                    <div className="flex items-center gap-0 mb-5">
                                         {STEPS.map((s, i) => {
                                             const reached = STEPS.indexOf(order.status) >= i;
                                             const isLast = i === STEPS.length - 1;
@@ -99,6 +120,34 @@ export default function CustomerDashboard() {
                                                 </div>
                                             );
                                         })}
+                                    </div>
+                                    <div className="space-y-3">
+                                        {order.order_items?.map((item) => (
+                                            <div key={item.id} className="flex gap-4">
+                                                <div className="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-gray-100 border" style={{ borderColor: 'var(--border-light)' }}>
+                                                    <img
+                                                        src={item.products?.images?.[0] || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200"}
+                                                        alt={item.products?.name}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <Link to={`/products/${item.product_id}`} className="text-sm font-semibold hover:underline line-clamp-1" style={{ color: "var(--text)" }}>
+                                                        {item.products?.name || "Product"}
+                                                    </Link>
+                                                    <div className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+                                                        Qty: {item.quantity} × {formatPrice(item.price)}
+                                                    </div>
+                                                    {['delivered', 'confirmed', 'shipped'].includes(order.status) && (
+                                                        <div className="mt-1.5">
+                                                            <Link to={`/products/${item.product_id}`} className="text-[11px] font-bold hover:underline" style={{ color: 'var(--accent)' }}>
+                                                                Write a review
+                                                            </Link>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>

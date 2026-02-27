@@ -33,12 +33,15 @@ export const orderService = {
     getAll: () => api.get("/orders"),
     getById: (id) => api.get(`/orders/${id}`),
     updateStatus: (id, status) => api.put(`/orders/${id}/status`, { status }),
+    cancel: (id) => api.put(`/orders/${id}/cancel`),
 };
 
 export const reviewService = {
     getByProduct: (productId) => api.get(`/reviews/product/${productId}`),
     add: (productId, data) => api.post(`/reviews/product/${productId}`, data),
+    update: (id, data) => api.put(`/reviews/${id}`, data),
     delete: (id) => api.delete(`/reviews/${id}`),
+    canReview: (productId) => api.get(`/reviews/can-review/${productId}`),
 };
 
 export const wishlistService = {

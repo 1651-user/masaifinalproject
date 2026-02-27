@@ -4,6 +4,7 @@ import { Search, ShoppingCart, Heart, User, Menu, X, Sun, Moon, ChevronDown, Log
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useTheme } from "../context/ThemeContext";
+import { useWishlist } from "../context/WishlistContext";
 
 const CATEGORIES = [
   { name: "Clothing", slug: "clothing" },
@@ -21,6 +22,7 @@ const W = { width: "100%", paddingLeft: "clamp(16px, 5vw, 64px)", paddingRight: 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { itemCount } = useCart();
+  const { wishlistItems } = useWishlist();
   const { dark, toggle: toggleTheme } = useTheme();
   const [search, setSearch] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -80,11 +82,18 @@ export default function Navbar() {
             {dark ? <Sun size={20} /> : <Moon size={20} />}
           </button>
 
-          {user && (
+          {user && user.role === "customer" && (
             <Link to="/wishlist"
-              style={{ padding: 8, borderRadius: "50%", color: "var(--text-secondary)", display: "none" }}
+              style={{ padding: 8, borderRadius: "50%", color: "var(--text-secondary)", display: "none", position: "relative" }}
               className="sm:flex hover:bg-[var(--bg-secondary)] transition items-center">
               <Heart size={20} />
+              {wishlistItems?.length > 0 && (
+                <span style={{
+                  position: "absolute", top: 2, right: 2, minWidth: 18, height: 18,
+                  background: "var(--accent)", color: "white", fontSize: 10, fontWeight: 700,
+                  borderRadius: 99, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px"
+                }}>{wishlistItems.length}</span>
+              )}
             </Link>
           )}
 

@@ -4,6 +4,7 @@ import { Heart, ShoppingCart, Star, Minus, Plus, Truck, Shield, RefreshCw, Chevr
 import { productService, reviewService } from "../services";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { useWishlist } from "../context/WishlistContext";
 import { formatPrice, formatDate } from "../utils/helpers";
 import toast from "react-hot-toast";
 
@@ -18,14 +19,26 @@ export default function ProductDetail() {
     const [loading, setLoading] = useState(true);
     const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
     const [submitting, setSubmitting] = useState(false);
-    const [wishlisted, setWishlisted] = useState(false);
+    const { isWishlisted, toggleWishlist } = useWishlist();
+    const wishlisted = user ? isWishlisted(product?.id) : false;
+
+    const [canReviewState, setCanReviewState] = useState({ hasPurchased: false, canReview: false, existingReview: null });
+    const [editingReviewId, setEditingReviewId] = useState(null);
 
     useEffect(() => {
-        Promise.all([productService.getById(id), reviewService.getByProduct(id)])
-            .then(([p, r]) => { setProduct(p.data); setReviews(r.data); })
+        Promise.all([
+            productService.getById(id),
+            reviewService.getByProduct(id),
+            user ? reviewService.canReview(id).catch(() => ({ data: { hasPurchased: false, canReview: false, existingReview: null } })) : Promise.resolve({ data: { hasPurchased: false, canReview: false, existingReview: null } })
+        ])
+            .then(([p, r, c]) => {
+                setProduct(p.data);
+                setReviews(r.data);
+                if (c.data) setCanReviewState(c.data);
+            })
             .catch(() => toast.error("Product not found"))
             .finally(() => setLoading(false));
-    }, [id]);
+    }, [id, user]);
 
     const handleAddToCart = async () => {
         if (!user) { toast.error("Please sign in to add to cart"); return; }
@@ -39,12 +52,40 @@ export default function ProductDetail() {
         if (!user) { toast.error("Sign in to leave a review"); return; }
         setSubmitting(true);
         try {
-            const res = await reviewService.add(id, reviewForm);
-            setReviews([res.data, ...reviews]);
+            if (editingReviewId) {
+                const res = await reviewService.update(editingReviewId, reviewForm);
+                setReviews(reviews.map((r) => r.id === editingReviewId ? res.data : r));
+                setCanReviewState({ ...canReviewState, existingReview: res.data });
+                setEditingReviewId(null);
+                toast.success("Review updated!");
+            } else {
+                const res = await reviewService.add(id, reviewForm);
+                setReviews([res.data, ...reviews]);
+                setCanReviewState({ ...canReviewState, canReview: false, existingReview: res.data });
+                toast.success("Review posted!");
+            }
             setReviewForm({ rating: 5, comment: "" });
-            toast.success("Review posted!");
         } catch (err) { toast.error(err.response?.data?.error || "Failed to post review"); }
         setSubmitting(false);
+    };
+
+    const handleDeleteReview = async (reviewId) => {
+        try {
+            await reviewService.delete(reviewId);
+            setReviews(reviews.filter((r) => r.id !== reviewId));
+            setCanReviewState({ ...canReviewState, canReview: true, existingReview: null });
+            toast.success("Review deleted");
+        } catch (err) {
+            toast.error("Failed to delete review");
+        }
+    };
+
+    const startEditReview = (review) => {
+        setReviewForm({ rating: review.rating, comment: review.comment || "" });
+        setEditingReviewId(review.id);
+        setCanReviewState({ ...canReviewState, canReview: true });
+        // Scroll to form (optional UX improvement)
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     };
 
     if (loading) return (
@@ -73,7 +114,7 @@ export default function ProductDetail() {
                         <div className="relative aspect-square rounded-2xl overflow-hidden mb-3" style={{ background: "var(--bg-secondary)" }}>
                             <img src={images[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
                             {user?.role !== "vendor" && (
-                                <button onClick={() => setWishlisted(!wishlisted)}
+                                <button onClick={() => toggleWishlist(product.id)}
                                     className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center shadow-md"
                                     style={{ background: "white", color: wishlisted ? "#e56000" : "#767676" }}>
                                     <Heart size={18} className={wishlisted ? "fill-[#e56000]" : ""} />
@@ -146,7 +187,7 @@ export default function ProductDetail() {
                                         <button onClick={handleAddToCart} className="btn-primary flex-1 !justify-center !text-base !py-3">
                                             <ShoppingCart size={17} /> Add to cart
                                         </button>
-                                        <button onClick={() => setWishlisted(!wishlisted)}
+                                        <button onClick={() => toggleWishlist(product.id)}
                                             className="px-5 py-3 rounded-full border-2 transition"
                                             style={{ borderColor: "var(--border)", color: wishlisted ? "var(--accent)" : "var(--text-secondary)" }}>
                                             <Heart size={17} className={wishlisted ? "fill-[var(--accent)]" : ""} />
@@ -188,22 +229,45 @@ export default function ProductDetail() {
                     )}
 
                     {user?.role === "customer" && (
-                        <form onSubmit={handleReview} className="mb-8 p-5 rounded-2xl" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-light)" }}>
-                            <p className="text-sm font-bold mb-3" style={{ color: "var(--text)" }}>Leave a review</p>
-                            <div className="flex items-center gap-1 mb-3">
-                                {[1, 2, 3, 4, 5].map((s) => (
-                                    <button key={s} type="button" onClick={() => setReviewForm({ ...reviewForm, rating: s })}>
-                                        <Star size={22} className={s <= reviewForm.rating ? "fill-[#e56000] text-[#e56000]" : "text-gray-300"} />
-                                    </button>
-                                ))}
+                        canReviewState.canReview ? (
+                            <form onSubmit={handleReview} className="mb-8 p-5 rounded-2xl" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-light)" }}>
+                                <div className="flex justify-between items-center mb-3">
+                                    <p className="text-sm font-bold" style={{ color: "var(--text)" }}>
+                                        {editingReviewId ? "Edit your review" : "Leave a review"}
+                                    </p>
+                                    {editingReviewId && (
+                                        <button type="button" onClick={() => {
+                                            setEditingReviewId(null);
+                                            setReviewForm({ rating: 5, comment: "" });
+                                            setCanReviewState({ ...canReviewState, canReview: false });
+                                        }} className="text-xs hover:underline" style={{ color: "var(--text-muted)" }}>Cancel edit</button>
+                                    )}
+                                </div>
+                                <div className="flex items-center gap-1 mb-3">
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                        <button key={s} type="button" onClick={() => setReviewForm({ ...reviewForm, rating: s })}>
+                                            <Star size={22} className={s <= reviewForm.rating ? "fill-[#e56000] text-[#e56000]" : "text-gray-300"} />
+                                        </button>
+                                    ))}
+                                </div>
+                                <textarea value={reviewForm.comment} onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                                    placeholder="Share your experience with this product…" rows={3}
+                                    className="input !rounded-xl w-full resize-none mb-3" />
+                                <button type="submit" disabled={submitting} className="btn-primary !text-sm">
+                                    {submitting ? "Posting…" : editingReviewId ? "Update review" : "Submit review"}
+                                </button>
+                            </form>
+                        ) : canReviewState.hasPurchased && canReviewState.existingReview ? (
+                            <div className="mb-8 p-5 rounded-2xl text-center" style={{ background: "var(--bg-secondary)", border: "1px dashed var(--border)" }}>
+                                <p className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>You already reviewed this product</p>
+                                <p className="text-xs" style={{ color: "var(--text-muted)" }}>Thank you for your feedback!</p>
                             </div>
-                            <textarea value={reviewForm.comment} onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                                placeholder="Share your experience with this product…" rows={3}
-                                className="input !rounded-xl w-full resize-none mb-3" />
-                            <button type="submit" disabled={submitting} className="btn-primary !text-sm">
-                                {submitting ? "Posting…" : "Submit review"}
-                            </button>
-                        </form>
+                        ) : (
+                            <div className="mb-8 p-5 rounded-2xl text-center" style={{ background: "var(--bg-secondary)", border: "1px dashed var(--border)" }}>
+                                <p className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>Purchase required to review</p>
+                                <p className="text-xs" style={{ color: "var(--text-muted)" }}>You can only review products you have bought previously.</p>
+                            </div>
+                        )
                     )}
 
                     <div className="space-y-4">
@@ -219,7 +283,15 @@ export default function ProductDetail() {
                                             <div className="flex mt-0.5">{[...Array(5)].map((_, i) => <Star key={i} size={11} className={i < r.rating ? "fill-[#e56000] text-[#e56000]" : "text-gray-300"} />)}</div>
                                         </div>
                                     </div>
-                                    <span className="text-xs shrink-0" style={{ color: "var(--text-muted)" }}>{formatDate(r.created_at)}</span>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-xs shrink-0" style={{ color: "var(--text-muted)" }}>{formatDate(r.created_at)}</span>
+                                        {user?.id === r.user_id && (
+                                            <div className="flex items-center gap-2">
+                                                <button onClick={() => startEditReview(r)} className="text-xs font-semibold hover:underline" style={{ color: "var(--accent)" }}>Edit</button>
+                                                <button onClick={() => handleDeleteReview(r.id)} className="text-xs font-semibold hover:underline" style={{ color: "var(--danger)" }}>Delete</button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 {r.comment && <p className="text-sm leading-relaxed ml-10" style={{ color: "var(--text-secondary)" }}>{r.comment}</p>}
                             </div>
