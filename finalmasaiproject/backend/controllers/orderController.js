@@ -49,6 +49,7 @@ const createOrder = async (req, res, next) => {
                 payment_method,
                 coupon_code,
                 discount_amount: discount_amount.toFixed(2),
+                status: 'delivered',
             })
             .select()
             .single();
@@ -145,4 +146,46 @@ const updateOrderStatus = async (req, res, next) => {
     }
 };
 
-module.exports = { createOrder, getOrders, getOrder, updateOrderStatus };
+const cancelOrder = async (req, res, next) => {
+    try {
+        // Fetch the order and verify ownership
+        const { data: order, error: fetchError } = await supabase
+            .from("orders")
+            .select("*, order_items(product_id, quantity, products(stock))")
+            .eq("id", req.params.id)
+            .eq("user_id", req.user.id)
+            .single();
+
+        if (fetchError || !order) {
+            return res.status(404).json({ error: "Order not found." });
+        }
+
+        if (order.status === "cancelled") {
+            return res.status(400).json({ error: "Order is already cancelled." });
+        }
+
+        // Update order status to cancelled
+        const { data: updatedOrder, error: cancelError } = await supabase
+            .from("orders")
+            .update({ status: "cancelled", updated_at: new Date().toISOString() })
+            .eq("id", req.params.id)
+            .select()
+            .single();
+
+        if (cancelError) throw cancelError;
+
+        // Restore product stock for each item
+        for (const item of order.order_items) {
+            await supabase
+                .from("products")
+                .update({ stock: (item.products?.stock || 0) + item.quantity })
+                .eq("id", item.product_id);
+        }
+
+        res.json(updatedOrder);
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { createOrder, getOrders, getOrder, updateOrderStatus, cancelOrder };

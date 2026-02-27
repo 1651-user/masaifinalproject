@@ -46,7 +46,7 @@ const removeFromWishlist = async (req, res, next) => {
         const { error } = await supabase
             .from("wishlists")
             .delete()
-            .eq("id", req.params.id)
+            .eq("product_id", req.params.id)
             .eq("user_id", req.user.id);
 
         if (error) throw error;
