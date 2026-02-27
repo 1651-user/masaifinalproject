@@ -24,23 +24,6 @@ const addReview = async (req, res, next) => {
             return res.status(400).json({ error: "Rating must be between 1 and 5." });
         }
 
-        // Verify user has purchased this product and the order is delivered
-        const { data: orders, error: orderError } = await supabase
-            .from("orders")
-            .select(`
-                id,
-                status,
-                order_items!inner(product_id)
-            `)
-            .eq("user_id", req.user.id)
-            .eq("order_items.product_id", productId)
-            .in("status", ["delivered", "confirmed", "shipped"]); // Accept any finalized status that indicates purchase
-
-        if (orderError) throw orderError;
-        if (!orders || orders.length === 0) {
-            return res.status(403).json({ error: "You can only review products you have purchased." });
-        }
-
         const { data, error } = await supabase
             .from("reviews")
             .insert({
@@ -94,42 +77,33 @@ const updateReview = async (req, res, next) => {
     }
 };
 
-const canReview = async (req, res, next) => {
+const voteHelpful = async (req, res, next) => {
     try {
-        const productId = req.params.productId;
-
-        // Check 1: Has the user bought it?
-        const { data: orders, error: orderError } = await supabase
-            .from("orders")
-            .select(`
-                id,
-                status,
-                order_items!inner(product_id)
-            `)
-            .eq("user_id", req.user.id)
-            .eq("order_items.product_id", productId)
-            .in("status", ["delivered", "confirmed", "shipped"]);
-
-        if (orderError) throw orderError;
-        const hasPurchased = orders && orders.length > 0;
-
-        // Check 2: Has the user already reviewed it?
-        const { data: existingReview, error: reviewError } = await supabase
+        // Get current helpful_count
+        const { data: review, error: fetchError } = await supabase
             .from("reviews")
-            .select("*")
-            .eq("user_id", req.user.id)
-            .eq("product_id", productId)
+            .select("helpful_count")
+            .eq("id", req.params.id)
             .single();
 
-        res.json({
-            hasPurchased,
-            existingReview: existingReview || null,
-            canReview: hasPurchased && !existingReview
-        });
+        if (fetchError || !review) {
+            return res.status(404).json({ error: "Review not found." });
+        }
+
+        const { data, error } = await supabase
+            .from("reviews")
+            .update({ helpful_count: (review.helpful_count || 0) + 1 })
+            .eq("id", req.params.id)
+            .select("id, helpful_count")
+            .single();
+
+        if (error) throw error;
+        res.json(data);
     } catch (error) {
         next(error);
     }
 };
+
 
 const deleteReview = async (req, res, next) => {
     try {
@@ -146,4 +120,4 @@ const deleteReview = async (req, res, next) => {
     }
 };
 
-module.exports = { getProductReviews, addReview, deleteReview, updateReview, canReview };
+module.exports = { getProductReviews, addReview, deleteReview, updateReview, voteHelpful };

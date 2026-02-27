@@ -49,7 +49,7 @@ export default function CustomerDashboard() {
     return (
         <div style={{ background: "var(--bg-secondary)", minHeight: "100vh" }}>
             <div className="max-w-4xl mx-auto px-4 py-10">
-                <div className="rounded-2xl p-5 mb-7 flex items-center gap-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
+                <div className="rounded-2xl p-6 mb-8 flex items-center gap-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
                     <div className="w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold text-white shrink-0" style={{ background: "var(--accent)" }}>
                         {user?.name?.charAt(0).toUpperCase()}
                     </div>
@@ -75,7 +75,7 @@ export default function CustomerDashboard() {
                 </div>
 
                 {tab === "orders" && (
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                         {loading ? (
                             [...Array(3)].map((_, i) => <div key={i} className="h-28 rounded-2xl animate-pulse" style={{ background: "var(--border)" }} />)
                         ) : orders.length === 0 ? (

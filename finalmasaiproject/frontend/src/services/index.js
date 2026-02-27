@@ -41,7 +41,7 @@ export const reviewService = {
     add: (productId, data) => api.post(`/reviews/product/${productId}`, data),
     update: (id, data) => api.put(`/reviews/${id}`, data),
     delete: (id) => api.delete(`/reviews/${id}`),
-    canReview: (productId) => api.get(`/reviews/can-review/${productId}`),
+    voteHelpful: (id) => api.put(`/reviews/${id}/helpful`),
 };
 
 export const wishlistService = {

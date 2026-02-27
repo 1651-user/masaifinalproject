@@ -44,8 +44,8 @@ export default function Wishlist() {
 
     return (
         <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
-            <div className="max-w-5xl mx-auto px-4 py-10">
-                <div className="flex items-center justify-between mb-7">
+            <div className="max-w-5xl mx-auto px-6 py-14">
+                <div className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>Your Favourites</h1>
                         <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>{items.length} saved item{items.length !== 1 ? "s" : ""}</p>
@@ -65,7 +65,7 @@ export default function Wishlist() {
                         <Link to="/products" className="btn-primary">Browse listings</Link>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5 animate-up">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-7 animate-up">
                         {items.map((item) => {
                             const p = item.products;
                             return (

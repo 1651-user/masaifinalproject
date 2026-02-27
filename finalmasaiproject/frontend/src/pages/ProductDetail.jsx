@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Heart, ShoppingCart, Star, Minus, Plus, Truck, Shield, RefreshCw, ChevronLeft } from "lucide-react";
+import { Heart, ShoppingCart, Star, Minus, Plus, Truck, Shield, RefreshCw, ChevronLeft, ThumbsUp } from "lucide-react";
 import { productService, reviewService } from "../services";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -22,23 +22,20 @@ export default function ProductDetail() {
     const { isWishlisted, toggleWishlist } = useWishlist();
     const wishlisted = user ? isWishlisted(product?.id) : false;
 
-    const [canReviewState, setCanReviewState] = useState({ hasPurchased: false, canReview: false, existingReview: null });
     const [editingReviewId, setEditingReviewId] = useState(null);
 
     useEffect(() => {
         Promise.all([
             productService.getById(id),
             reviewService.getByProduct(id),
-            user ? reviewService.canReview(id).catch(() => ({ data: { hasPurchased: false, canReview: false, existingReview: null } })) : Promise.resolve({ data: { hasPurchased: false, canReview: false, existingReview: null } })
         ])
-            .then(([p, r, c]) => {
+            .then(([p, r]) => {
                 setProduct(p.data);
                 setReviews(r.data);
-                if (c.data) setCanReviewState(c.data);
             })
             .catch(() => toast.error("Product not found"))
             .finally(() => setLoading(false));
-    }, [id, user]);
+    }, [id]);
 
     const handleAddToCart = async () => {
         if (!user) { toast.error("Please sign in to add to cart"); return; }
@@ -55,13 +52,11 @@ export default function ProductDetail() {
             if (editingReviewId) {
                 const res = await reviewService.update(editingReviewId, reviewForm);
                 setReviews(reviews.map((r) => r.id === editingReviewId ? res.data : r));
-                setCanReviewState({ ...canReviewState, existingReview: res.data });
                 setEditingReviewId(null);
                 toast.success("Review updated!");
             } else {
                 const res = await reviewService.add(id, reviewForm);
                 setReviews([res.data, ...reviews]);
-                setCanReviewState({ ...canReviewState, canReview: false, existingReview: res.data });
                 toast.success("Review posted!");
             }
             setReviewForm({ rating: 5, comment: "" });
@@ -73,7 +68,6 @@ export default function ProductDetail() {
         try {
             await reviewService.delete(reviewId);
             setReviews(reviews.filter((r) => r.id !== reviewId));
-            setCanReviewState({ ...canReviewState, canReview: true, existingReview: null });
             toast.success("Review deleted");
         } catch (err) {
             toast.error("Failed to delete review");
@@ -83,9 +77,16 @@ export default function ProductDetail() {
     const startEditReview = (review) => {
         setReviewForm({ rating: review.rating, comment: review.comment || "" });
         setEditingReviewId(review.id);
-        setCanReviewState({ ...canReviewState, canReview: true });
-        // Scroll to form (optional UX improvement)
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    };
+
+    const handleVoteHelpful = async (reviewId) => {
+        try {
+            const res = await reviewService.voteHelpful(reviewId);
+            setReviews(reviews.map((r) => r.id === reviewId ? { ...r, helpful_count: res.data.helpful_count } : r));
+        } catch {
+            toast.error("Could not register vote");
+        }
     };
 
     if (loading) return (
@@ -103,13 +104,13 @@ export default function ProductDetail() {
     const avgRating = product.avg_rating || 0;
 
     return (
-        <div style={{ background: "var(--bg)" }} className="min-h-screen pb-16">
-            <div className="max-w-5xl mx-auto px-4 py-6">
-                <Link to="/products" className="inline-flex items-center gap-1 text-sm mb-6 hover:underline" style={{ color: "var(--text-muted)" }}>
+        <div style={{ background: "var(--bg)" }} className="min-h-screen pb-20">
+            <div className="max-w-5xl mx-auto px-6 py-8">
+                <Link to="/products" className="inline-flex items-center gap-1 text-sm mb-8 hover:underline" style={{ color: "var(--text-muted)" }}>
                     <ChevronLeft size={14} /> Back to results
                 </Link>
 
-                <div className="grid md:grid-cols-2 gap-10">
+                <div className="grid md:grid-cols-2 gap-12">
                     <div>
                         <div className="relative aspect-square rounded-2xl overflow-hidden mb-3" style={{ background: "var(--bg-secondary)" }}>
                             <img src={images[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
@@ -228,8 +229,10 @@ export default function ProductDetail() {
                         </div>
                     )}
 
-                    {user?.role === "customer" && (
-                        canReviewState.canReview ? (
+                    {user?.role === "customer" && (() => {
+                        const myReview = reviews.find(r => r.user_id === user.id);
+                        const showForm = !myReview || editingReviewId;
+                        return showForm ? (
                             <form onSubmit={handleReview} className="mb-8 p-5 rounded-2xl" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-light)" }}>
                                 <div className="flex justify-between items-center mb-3">
                                     <p className="text-sm font-bold" style={{ color: "var(--text)" }}>
@@ -239,7 +242,6 @@ export default function ProductDetail() {
                                         <button type="button" onClick={() => {
                                             setEditingReviewId(null);
                                             setReviewForm({ rating: 5, comment: "" });
-                                            setCanReviewState({ ...canReviewState, canReview: false });
                                         }} className="text-xs hover:underline" style={{ color: "var(--text-muted)" }}>Cancel edit</button>
                                     )}
                                 </div>
@@ -257,18 +259,13 @@ export default function ProductDetail() {
                                     {submitting ? "Posting…" : editingReviewId ? "Update review" : "Submit review"}
                                 </button>
                             </form>
-                        ) : canReviewState.hasPurchased && canReviewState.existingReview ? (
-                            <div className="mb-8 p-5 rounded-2xl text-center" style={{ background: "var(--bg-secondary)", border: "1px dashed var(--border)" }}>
-                                <p className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>You already reviewed this product</p>
-                                <p className="text-xs" style={{ color: "var(--text-muted)" }}>Thank you for your feedback!</p>
-                            </div>
                         ) : (
                             <div className="mb-8 p-5 rounded-2xl text-center" style={{ background: "var(--bg-secondary)", border: "1px dashed var(--border)" }}>
-                                <p className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>Purchase required to review</p>
-                                <p className="text-xs" style={{ color: "var(--text-muted)" }}>You can only review products you have bought previously.</p>
+                                <p className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>You already reviewed this product</p>
+                                <p className="text-xs" style={{ color: "var(--text-muted)" }}>You can edit or delete your review below.</p>
                             </div>
-                        )
-                    )}
+                        );
+                    })()}
 
                     <div className="space-y-4">
                         {reviews.length > 0 ? reviews.map((r) => (
@@ -294,6 +291,12 @@ export default function ProductDetail() {
                                     </div>
                                 </div>
                                 {r.comment && <p className="text-sm leading-relaxed ml-10" style={{ color: "var(--text-secondary)" }}>{r.comment}</p>}
+                                <div className="ml-10 mt-2">
+                                    <button onClick={() => handleVoteHelpful(r.id)} className="helpful-btn">
+                                        <ThumbsUp size={12} />
+                                        Helpful{r.helpful_count > 0 ? ` (${r.helpful_count})` : ""}
+                                    </button>
+                                </div>
                             </div>
                         )) : (
                             <p className="text-center py-8 text-sm" style={{ color: "var(--text-muted)" }}>No reviews yet — be the first!</p>

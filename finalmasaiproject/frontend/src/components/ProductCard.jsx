@@ -48,7 +48,7 @@ export default function ProductCard({ product }) {
             onMouseLeave={() => setHovered(false)}
             style={{ display: "block", background: "transparent" }}
         >
-            <div style={{ position: "relative", aspectRatio: "1", borderRadius: 16, overflow: "hidden", background: "var(--bg-secondary)", marginBottom: 12 }}>
+            <div style={{ position: "relative", aspectRatio: "1", borderRadius: 18, overflow: "hidden", background: "var(--bg-secondary)", marginBottom: 16 }}>
                 {img ? (
                     <img
                         src={img}
@@ -102,10 +102,12 @@ export default function ProductCard({ product }) {
                     <div style={{
                         position: "absolute", bottom: 0, left: 0, right: 0,
                         padding: "10px 12px",
-                        opacity: hovered ? 1 : 0,
-                        transform: hovered ? "translateY(0)" : "translateY(8px)",
+                        opacity: hovered ? 1 : undefined,
+                        transform: hovered ? "translateY(0)" : undefined,
                         transition: "all 0.2s ease"
-                    }}>
+                    }}
+                        className={`${hovered ? '' : 'opacity-0 translate-y-2 sm:opacity-0 sm:translate-y-2'} max-sm:!opacity-100 max-sm:!translate-y-0`}
+                    >
                         <button
                             onClick={handleAddToCart}
                             disabled={adding}
@@ -125,26 +127,26 @@ export default function ProductCard({ product }) {
                 )}
             </div>
 
-            <div style={{ padding: "0 2px" }}>
+            <div style={{ padding: "2px 6px 8px" }}>
                 {product.users?.store_name && (
-                    <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 3 }}>
+                    <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 5 }}>
                         {product.users.store_name}
                     </p>
                 )}
-                <h3 style={{ fontSize: 14, fontWeight: 500, color: "var(--text)", marginBottom: 5, lineHeight: 1.4 }}
+                <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", marginBottom: 8, lineHeight: 1.45 }}
                     className="line-clamp-2">
                     {product.name}
                 </h3>
                 {rating > 0 && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 5 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 8 }}>
                         {[...Array(5)].map((_, i) => (
                             <Star key={i} size={11} style={{ fill: i < Math.round(rating) ? "#e56000" : "none", color: i < Math.round(rating) ? "#e56000" : "#ccc" }} />
                         ))}
                         <span style={{ fontSize: 11, color: "var(--text-muted)" }}>({reviewCount})</span>
                     </div>
                 )}
-                <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text)" }}>{formatPrice(product.price)}</span>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 16, fontWeight: 700, color: "var(--text)" }}>{formatPrice(product.price)}</span>
                     {product.compare_price > product.price && (
                         <span style={{ fontSize: 12, textDecoration: "line-through", color: "var(--text-muted)" }}>
                             {formatPrice(product.compare_price)}
@@ -152,7 +154,7 @@ export default function ProductCard({ product }) {
                     )}
                 </div>
                 {product.free_shipping && (
-                    <p style={{ fontSize: 11, color: "var(--success)", fontWeight: 600, marginTop: 3 }}>Free shipping</p>
+                    <p style={{ fontSize: 11, color: "var(--success)", fontWeight: 600, marginTop: 6 }}>Free shipping</p>
                 )}
             </div>
         </Link>

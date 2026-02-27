@@ -61,7 +61,7 @@ export default function Products() {
     return (
         <div style={{ background: "var(--bg)" }} className="min-h-screen">
             <div className="border-b" style={{ borderColor: "var(--border-light)", background: "var(--bg)" }}>
-                <div className="max-w-7xl mx-auto px-4 py-5 flex flex-wrap items-center justify-between gap-3">
+                <div className="max-w-7xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>
                             {filters.search
@@ -70,7 +70,7 @@ export default function Products() {
                                     ? activeCategory.name
                                     : "All Products"}
                         </h1>
-                        <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+                        <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
                             {pagination.total || 0} results
                         </p>
                     </div>
@@ -150,9 +150,9 @@ export default function Products() {
                 )}
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 py-7">
+            <div className="max-w-7xl mx-auto px-6 py-10">
                 {loading ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-7">
                         {[...Array(8)].map((_, i) => (
                             <div key={i} className="animate-pulse">
                                 <div className="aspect-square rounded-xl mb-2.5" style={{ background: "var(--border)" }} />
@@ -162,7 +162,7 @@ export default function Products() {
                         ))}
                     </div>
                 ) : products.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-7">
                         {products.map((p) => <ProductCard key={p.id} product={p} />)}
                     </div>
                 ) : (

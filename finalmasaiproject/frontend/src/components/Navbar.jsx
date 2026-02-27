@@ -39,7 +39,7 @@ export default function Navbar() {
       style={{ backgroundColor: "var(--bg)", borderBottom: "1px solid var(--border-light)", width: "100%" }}
       className="sticky top-0 z-50"
     >
-      <div style={{ ...W, display: "flex", alignItems: "center", gap: 16, paddingTop: 12, paddingBottom: 12 }}>
+      <div style={{ ...W, display: "flex", alignItems: "center", gap: 20, paddingTop: 16, paddingBottom: 16 }}>
 
         <Link to="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", flexShrink: 0 }}>
           <svg viewBox="0 0 32 32" width="34" height="34" fill="none">
@@ -75,7 +75,7 @@ export default function Navbar() {
           </div>
         </form>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
           <button onClick={toggleTheme}
             style={{ padding: 8, borderRadius: "50%", color: "var(--text-secondary)", display: "flex" }}
             className="hover:bg-[var(--bg-secondary)] transition">
@@ -84,8 +84,8 @@ export default function Navbar() {
 
           {user && user.role === "customer" && (
             <Link to="/wishlist"
-              style={{ padding: 8, borderRadius: "50%", color: "var(--text-secondary)", display: "none", position: "relative" }}
-              className="sm:flex hover:bg-[var(--bg-secondary)] transition items-center">
+              style={{ padding: 8, borderRadius: "50%", color: "var(--text-secondary)", display: "flex", position: "relative" }}
+              className="hover:bg-[var(--bg-secondary)] transition items-center">
               <Heart size={20} />
               {wishlistItems?.length > 0 && (
                 <span style={{
@@ -190,16 +190,16 @@ export default function Navbar() {
 
       <div className="hidden md:block" style={{ borderTop: "1px solid var(--border-light)" }}>
         <div style={{ ...W, paddingTop: 0, paddingBottom: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 0", overflowX: "auto" }}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 0", overflowX: "auto" }}
             className="no-scrollbar">
             <Link to="/products"
-              style={{ padding: "7px 16px", fontSize: 13, fontWeight: 700, color: "var(--text)", borderRadius: 99, whiteSpace: "nowrap", flexShrink: 0, textDecoration: "none" }}
+              style={{ padding: "8px 18px", fontSize: 13, fontWeight: 700, color: "var(--text)", borderRadius: 99, whiteSpace: "nowrap", flexShrink: 0, textDecoration: "none" }}
               className="hover:bg-[var(--bg-secondary)] transition">
               All Categories
             </Link>
             {CATEGORIES.map((cat) => (
               <Link key={cat.slug} to={`/products?category=${cat.slug}`}
-                style={{ padding: "7px 16px", fontSize: 13, fontWeight: 500, color: "var(--text-secondary)", borderRadius: 99, whiteSpace: "nowrap", flexShrink: 0, textDecoration: "none" }}
+                style={{ padding: "8px 18px", fontSize: 13, fontWeight: 500, color: "var(--text-secondary)", borderRadius: 99, whiteSpace: "nowrap", flexShrink: 0, textDecoration: "none" }}
                 className="hover:bg-[var(--bg-secondary)] transition">
                 {cat.name}
               </Link>

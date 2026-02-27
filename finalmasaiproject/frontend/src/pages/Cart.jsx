@@ -25,13 +25,13 @@ export default function Cart() {
     );
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-10 animate-up" style={{ background: "var(--bg)" }}>
+        <div className="max-w-4xl mx-auto px-6 py-14 animate-up" style={{ background: "var(--bg)" }}>
             <div className="flex items-center justify-between mb-7">
                 <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>Shopping cart ({items.length})</h1>
                 <button onClick={() => { clearCart(); toast.success("Cart cleared"); }} className="text-sm font-semibold hover:underline" style={{ color: "var(--text-muted)" }}>Clear all</button>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-7">
+            <div className="grid md:grid-cols-3 gap-8">
                 <div className="md:col-span-2 space-y-4">
                     {items.map((item) => {
                         const p = item.products;

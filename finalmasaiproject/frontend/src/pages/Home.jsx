@@ -7,6 +7,29 @@ import ProductCard from "../components/ProductCard";
 /* fluid: fills 100% width, with responsive padding on sides */
 const W = { width: "100%", paddingLeft: "clamp(16px, 5vw, 64px)", paddingRight: "clamp(16px, 5vw, 64px)" };
 
+/* Reliable fallback images for categories with broken image_url */
+const CATEGORY_FALLBACK = {
+    "food": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop",
+    "beverage": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop",
+    "sports": "https://images.unsplash.com/photo-1461896836934-bd45ba4d32c7?w=200&h=200&fit=crop",
+    "handmade": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=200&h=200&fit=crop",
+    "clothing": "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=200&h=200&fit=crop",
+    "jewelry": "https://images.unsplash.com/photo-1515562141589-67f0d569b6c2?w=200&h=200&fit=crop",
+    "electronics": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&h=200&fit=crop",
+    "books": "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=200&h=200&fit=crop",
+    "beauty": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200&h=200&fit=crop",
+    "home": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=200&fit=crop",
+    "garden": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=200&fit=crop",
+};
+
+const getCategoryFallback = (name) => {
+    const lower = (name || "").toLowerCase();
+    for (const [key, url] of Object.entries(CATEGORY_FALLBACK)) {
+        if (lower.includes(key)) return url;
+    }
+    return "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=200&h=200&fit=crop";
+};
+
 export default function Home() {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -25,18 +48,19 @@ export default function Home() {
     return (
         <div style={{ background: "var(--bg)", width: "100%" }}>
 
-            <section style={{ background: "var(--bg-secondary)", padding: "28px 0" }}>
+            <section style={{ background: "var(--bg-secondary)", padding: "36px 0" }}>
                 <div style={{ ...W }}>
                     <div style={{
                         display: "grid",
                         gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                        gap: 16,
+                        gap: 20,
                     }}>
-                        <div style={{
-                            gridColumn: "span 2",
-                            position: "relative", borderRadius: 20, overflow: "hidden", minHeight: 320,
-                            background: "linear-gradient(135deg, var(--accent) 0%, #1a1a2e 100%)",
-                        }}>
+                        <div
+                            className="md:col-span-2"
+                            style={{
+                                position: "relative", borderRadius: 20, overflow: "hidden", minHeight: 320,
+                                background: "linear-gradient(135deg, var(--accent) 0%, #1a1a2e 100%)",
+                            }}>
                             <div style={{ position: "relative", padding: "clamp(28px, 5vw, 52px)", display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 320 }}>
                                 <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)", marginBottom: 12 }}>
                                     ShopLocal picks
@@ -89,13 +113,13 @@ export default function Home() {
             </div>
 
             {categories.length > 0 && (
-                <section style={{ padding: "52px 0", background: "var(--bg)" }}>
+                <section style={{ padding: "64px 0", background: "var(--bg)" }}>
                     <div style={W}>
                         <h2 className="section-title">Shop by category</h2>
                         <div style={{
                             display: "grid",
                             gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))",
-                            gap: "20px 16px"
+                            gap: "24px 20px"
                         }}>
                             {categories.map((cat) => (
                                 <Link key={cat.id} to={`/products?category=${cat.id}`}
@@ -104,8 +128,9 @@ export default function Home() {
                                     <div style={{ width: 76, height: 76, borderRadius: "50%", overflow: "hidden", border: "2px solid var(--border-light)", transition: "border-color 0.2s, transform 0.2s" }}
                                         className="group-hover:border-[var(--accent)] group-hover:scale-105">
                                         {cat.image_url
-                                            ? <img src={cat.image_url} alt={cat.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                            : <div style={{ width: "100%", height: "100%", background: "var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "var(--text-muted)" }}>No image</div>
+                                            ? <img src={cat.image_url} alt={cat.name} style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                onError={(e) => { e.target.onerror = null; e.target.src = getCategoryFallback(cat.name); }} />
+                                            : <img src={getCategoryFallback(cat.name)} alt={cat.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                                         }
                                     </div>
                                     <span style={{ fontSize: 12, fontWeight: 600, textAlign: "center", color: "var(--text-secondary)", lineHeight: 1.3 }}>{cat.name}</span>
@@ -116,7 +141,7 @@ export default function Home() {
                 </section>
             )}
 
-            <section style={{ padding: "52px 0", background: "var(--bg-secondary)" }}>
+            <section style={{ padding: "64px 0", background: "var(--bg-secondary)" }}>
                 <div style={W}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
                         <h2 className="section-title" style={{ marginBottom: 0 }}>Recently listed</h2>
@@ -128,7 +153,7 @@ export default function Home() {
                     </div>
 
                     {loading ? (
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 24 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 28 }}>
                             {[...Array(4)].map((_, i) => (
                                 <div key={i} className="animate-pulse">
                                     <div style={{ aspectRatio: "1", borderRadius: 16, background: "var(--border)", marginBottom: 12 }} />
@@ -138,7 +163,7 @@ export default function Home() {
                             ))}
                         </div>
                     ) : products.length > 0 ? (
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 24 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 28 }}>
                             {products.map((p) => <ProductCard key={p.id} product={p} />)}
                         </div>
                     ) : (

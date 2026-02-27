@@ -53,10 +53,10 @@ export default function Checkout() {
     if (!items.length) { navigate("/cart"); return null; }
 
     return (
-        <div className="max-w-5xl mx-auto px-4 py-10 animate-up" style={{ background: "var(--bg)" }}>
-            <h1 className="text-2xl font-bold mb-8" style={{ color: "var(--text)" }}>Checkout</h1>
+        <div className="max-w-5xl mx-auto px-6 py-14 animate-up" style={{ background: "var(--bg)" }}>
+            <h1 className="text-2xl font-bold mb-10" style={{ color: "var(--text)" }}>Checkout</h1>
 
-            <form onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-7">
+            <form onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-8">
                 <div className="md:col-span-2 space-y-5">
                     <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
                         <h2 className="text-base font-bold mb-5" style={{ color: "var(--text)" }}>Shipping address</h2>
