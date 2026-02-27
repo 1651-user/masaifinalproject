@@ -64,13 +64,11 @@ export default function ProductDetail() {
     return (
         <div style={{ background: "var(--bg)" }} className="min-h-screen pb-16">
             <div className="max-w-5xl mx-auto px-4 py-6">
-                {/* Breadcrumb */}
                 <Link to="/products" className="inline-flex items-center gap-1 text-sm mb-6 hover:underline" style={{ color: "var(--text-muted)" }}>
                     <ChevronLeft size={14} /> Back to results
                 </Link>
 
                 <div className="grid md:grid-cols-2 gap-10">
-                    {/* Images */}
                     <div>
                         <div className="relative aspect-square rounded-2xl overflow-hidden mb-3" style={{ background: "var(--bg-secondary)" }}>
                             <img src={images[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
@@ -95,7 +93,6 @@ export default function ProductDetail() {
                         )}
                     </div>
 
-                    {/* Details */}
                     <div className="animate-up">
                         {product.users?.store_name && (
                             <p className="text-sm font-semibold mb-1" style={{ color: "var(--accent)" }}>{product.users.store_name}</p>
@@ -105,7 +102,6 @@ export default function ProductDetail() {
                         )}
                         <h1 className="text-2xl font-bold leading-snug mb-3" style={{ color: "var(--text)" }}>{product.name}</h1>
 
-                        {/* Rating */}
                         <div className="flex items-center gap-2 mb-4">
                             <div className="flex items-center gap-0.5">
                                 {[...Array(5)].map((_, i) => (
@@ -116,7 +112,6 @@ export default function ProductDetail() {
                             <span className="text-sm" style={{ color: "var(--text-muted)" }}>({reviews.length} reviews)</span>
                         </div>
 
-                        {/* Price */}
                         <div className="flex items-baseline gap-2 mb-2">
                             <span className="text-2xl font-bold" style={{ color: "var(--text)" }}>{formatPrice(product.price)}</span>
                             {product.compare_price > product.price && (
@@ -163,7 +158,6 @@ export default function ProductDetail() {
                             <div className="py-4 rounded-2xl text-center font-semibold text-red-600" style={{ background: "#fef2f2", border: "1px solid #fecaca" }}>Sold out</div>
                         )}
 
-                        {/* Trust */}
                         <div className="mt-6 pt-5 border-t space-y-2.5" style={{ borderColor: "var(--border-light)" }}>
                             {[
                                 { icon: Truck, text: "Estimated delivery: 3–7 business days" },
@@ -178,13 +172,11 @@ export default function ProductDetail() {
                     </div>
                 </div>
 
-                {/* Reviews */}
                 <div className="mt-14">
                     <h2 className="text-xl font-bold mb-6" style={{ color: "var(--text)" }}>
                         Reviews for this listing ({reviews.length})
                     </h2>
 
-                    {/* Average */}
                     {reviews.length > 0 && (
                         <div className="flex items-center gap-4 mb-7 p-5 rounded-2xl" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-light)" }}>
                             <div className="text-center">
@@ -195,7 +187,6 @@ export default function ProductDetail() {
                         </div>
                     )}
 
-                    {/* Leave review */}
                     {user?.role === "customer" && (
                         <form onSubmit={handleReview} className="mb-8 p-5 rounded-2xl" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-light)" }}>
                             <p className="text-sm font-bold mb-3" style={{ color: "var(--text)" }}>Leave a review</p>

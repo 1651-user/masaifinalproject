@@ -25,16 +25,13 @@ export default function Home() {
     return (
         <div style={{ background: "var(--bg)", width: "100%" }}>
 
-            {/* ── Hero ── */}
             <section style={{ background: "var(--bg-secondary)", padding: "28px 0" }}>
                 <div style={{ ...W }}>
-                    {/* Responsive grid: stacks on mobile */}
                     <div style={{
                         display: "grid",
                         gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
                         gap: 16,
                     }}>
-                        {/* Main hero — span 2 cols when there's room */}
                         <div style={{
                             gridColumn: "span 2",
                             position: "relative", borderRadius: 20, overflow: "hidden", minHeight: 320,
@@ -73,7 +70,6 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ── Trust bar ── */}
             <div style={{ borderTop: "1px solid var(--border-light)", borderBottom: "1px solid var(--border-light)", background: "var(--bg)" }}>
                 <div style={{ ...W, paddingTop: 14, paddingBottom: 14 }}>
                     <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px 36px" }}>
@@ -92,7 +88,6 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* ── Categories ── */}
             {categories.length > 0 && (
                 <section style={{ padding: "52px 0", background: "var(--bg)" }}>
                     <div style={W}>
@@ -121,7 +116,6 @@ export default function Home() {
                 </section>
             )}
 
-            {/* ── New Arrivals ── */}
             <section style={{ padding: "52px 0", background: "var(--bg-secondary)" }}>
                 <div style={W}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
@@ -157,7 +151,6 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ── Vendor CTA ── */}
             <section style={{ padding: "52px 0", background: "var(--bg)" }}>
                 <div style={W}>
                     <div style={{ borderRadius: 24, background: "var(--accent-light)", border: "1px solid var(--border-light)", overflow: "hidden" }}>

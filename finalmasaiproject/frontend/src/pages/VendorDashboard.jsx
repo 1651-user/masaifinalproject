@@ -12,14 +12,13 @@ import toast from "react-hot-toast";
 export default function VendorDashboard() {
     const { user } = useAuth();
     const [tab, setTab] = useState("overview");
-    const [dashData, setDashData] = useState(null);   // { stats, low_stock_products, recent_orders }
+    const [dashData, setDashData] = useState(null);
     const [products, setProducts] = useState([]);
     const [orders, setOrders] = useState([]);
     const [categories, setCategories] = useState([]);
     const [coupons, setCoupons] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Product form
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [form, setForm] = useState({
@@ -29,12 +28,10 @@ export default function VendorDashboard() {
     const [imageMode, setImageMode] = useState("url"); // "url" | "device"
     const [uploadingFiles, setUploadingFiles] = useState([]); // [{ name, status }]
 
-    // Listing filters
     const [listSearch, setListSearch] = useState("");
     const [listCategory, setListCategory] = useState("");
     const [listSort, setListSort] = useState("newest");
 
-    // Coupon form
     const [couponForm, setCouponForm] = useState({ code: "", discount_percent: "", max_uses: "100", expires_at: "" });
     const [showCouponForm, setShowCouponForm] = useState(false);
 
@@ -62,7 +59,6 @@ export default function VendorDashboard() {
         setLoading(false);
     };
 
-    // Filtered + sorted listings
     const filteredProducts = useMemo(() => {
         let list = [...products];
         if (listSearch) list = list.filter(p => p.name.toLowerCase().includes(listSearch.toLowerCase()));
@@ -220,7 +216,6 @@ export default function VendorDashboard() {
         <div style={{ background: "var(--bg-secondary)", minHeight: "100vh" }}>
             <div className="max-w-5xl mx-auto px-4 py-10">
 
-                {/* Header */}
                 <div className="flex items-start justify-between mb-7 flex-wrap gap-3">
                     <div>
                         <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>Vendor Dashboard</h1>
@@ -233,7 +228,6 @@ export default function VendorDashboard() {
                     </button>
                 </div>
 
-                {/* Tabs */}
                 <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
                     {TABS.map((t) => (
                         <button key={t.k} onClick={() => setTab(t.k)}
@@ -244,7 +238,6 @@ export default function VendorDashboard() {
                     ))}
                 </div>
 
-                {/* ── OVERVIEW ── */}
                 {tab === "overview" && (
                     <div className="space-y-5">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -299,7 +292,6 @@ export default function VendorDashboard() {
                             </div>
                         )}
 
-                        {/* Quick actions */}
                         <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
                             <h3 className="text-sm font-bold mb-3" style={{ color: "var(--text)" }}>Quick actions</h3>
                             <div className="flex flex-wrap gap-2">
@@ -318,10 +310,8 @@ export default function VendorDashboard() {
                     </div>
                 )}
 
-                {/* ── LISTINGS / PRODUCTS ── */}
                 {tab === "products" && (
                     <div>
-                        {/* Filter bar */}
                         <div className="rounded-2xl p-4 mb-5 flex flex-wrap gap-3 items-center"
                             style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
                             <div className="relative flex-1 min-w-[160px]">
@@ -349,7 +339,6 @@ export default function VendorDashboard() {
                             </button>
                         </div>
 
-                        {/* Product form */}
                         {showForm && (
                             <form onSubmit={handleProductSubmit}
                                 className="rounded-2xl p-5 mb-5 space-y-4 animate-up"
@@ -400,14 +389,12 @@ export default function VendorDashboard() {
                                             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                                         </select>
                                     </div>
-                                    {/* Image section */}
                                     <div className="sm:col-span-2">
                                         <label className="block text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
                                             <ImageIcon size={11} className="inline mr-1" />
                                             Product Images
                                         </label>
 
-                                        {/* Toggle tabs */}
                                         <div className="flex gap-1 mb-3">
                                             {[
                                                 { k: "device", label: "Upload from device" },
@@ -425,7 +412,6 @@ export default function VendorDashboard() {
                                             ))}
                                         </div>
 
-                                        {/* Device upload */}
                                         {imageMode === "device" && (
                                             <div>
                                                 <label
@@ -451,7 +437,6 @@ export default function VendorDashboard() {
                                                     />
                                                 </label>
 
-                                                {/* Upload progress list */}
                                                 {uploadingFiles.length > 0 && (
                                                     <div className="mt-2 space-y-1">
                                                         {uploadingFiles.map((f, i) => (
@@ -475,7 +460,6 @@ export default function VendorDashboard() {
                                             </div>
                                         )}
 
-                                        {/* URL paste */}
                                         {imageMode === "url" && (
                                             <div>
                                                 <input type="text" value={form.images}
@@ -487,7 +471,6 @@ export default function VendorDashboard() {
                                             </div>
                                         )}
 
-                                        {/* Preview all images (from both upload & URL) */}
                                         {form.images && (
                                             <div className="flex gap-2 flex-wrap mt-3">
                                                 {form.images.split(",").map((url, i) => url.trim() && (
@@ -528,7 +511,6 @@ export default function VendorDashboard() {
                             </form>
                         )}
 
-                        {/* Listings grid */}
                         {filteredProducts.length === 0 ? (
                             <div className="text-center py-14 rounded-2xl" style={{ background: "var(--bg-card)", border: "1px dashed var(--border)" }}>
                                 <Package size={36} className="mx-auto mb-3" style={{ color: "var(--text-muted)" }} />
@@ -606,7 +588,6 @@ export default function VendorDashboard() {
                     </div>
                 )}
 
-                {/* ── ORDERS ── */}
                 {tab === "orders" && (
                     <div className="space-y-3">
                         {orders.length === 0
@@ -659,7 +640,6 @@ export default function VendorDashboard() {
                     </div>
                 )}
 
-                {/* ── COUPONS ── */}
                 {tab === "coupons" && (
                     <div>
                         <div className="flex justify-between items-center mb-5">

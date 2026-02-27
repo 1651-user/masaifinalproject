@@ -47,7 +47,6 @@ export default function ProductCard({ product }) {
             onMouseLeave={() => setHovered(false)}
             style={{ display: "block", background: "transparent" }}
         >
-            {/* Image */}
             <div style={{ position: "relative", aspectRatio: "1", borderRadius: 16, overflow: "hidden", background: "var(--bg-secondary)", marginBottom: 12 }}>
                 {img ? (
                     <img
@@ -62,7 +61,6 @@ export default function ProductCard({ product }) {
                     </div>
                 )}
 
-                {/* Badges */}
                 <div style={{ position: "absolute", top: 10, left: 10, display: "flex", flexDirection: "column", gap: 5 }}>
                     {discount >= 5 && (
                         <span style={{ background: "var(--accent)", color: "white", fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 99 }}>
@@ -81,7 +79,6 @@ export default function ProductCard({ product }) {
                     )}
                 </div>
 
-                {/* Wishlist */}
                 {user?.role !== "vendor" && (
                     <button
                         onClick={handleWishlist}
@@ -100,7 +97,6 @@ export default function ProductCard({ product }) {
                     </button>
                 )}
 
-                {/* Quick add — customers only */}
                 {product.stock > 0 && user?.role !== "vendor" && (
                     <div style={{
                         position: "absolute", bottom: 0, left: 0, right: 0,
@@ -128,7 +124,6 @@ export default function ProductCard({ product }) {
                 )}
             </div>
 
-            {/* Info */}
             <div style={{ padding: "0 2px" }}>
                 {product.users?.store_name && (
                     <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 3 }}>

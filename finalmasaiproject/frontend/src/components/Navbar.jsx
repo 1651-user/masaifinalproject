@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, ShoppingCart, Heart, User, Menu, X, Sun, Moon, ChevronDown, LogOut, Store } from "lucide-react";
+import { Search, ShoppingCart, Heart, User, Menu, X, Sun, Moon, ChevronDown, LogOut, Store, Shield } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useTheme } from "../context/ThemeContext";
@@ -16,7 +16,6 @@ const CATEGORIES = [
   { name: "Handmade", slug: "handmade" },
 ];
 
-/* fluid container — 5% side padding, never less than 16px */
 const W = { width: "100%", paddingLeft: "clamp(16px, 5vw, 64px)", paddingRight: "clamp(16px, 5vw, 64px)" };
 
 export default function Navbar() {
@@ -38,10 +37,8 @@ export default function Navbar() {
       style={{ backgroundColor: "var(--bg)", borderBottom: "1px solid var(--border-light)", width: "100%" }}
       className="sticky top-0 z-50"
     >
-      {/* ── Top bar ── */}
       <div style={{ ...W, display: "flex", alignItems: "center", gap: 16, paddingTop: 12, paddingBottom: 12 }}>
 
-        {/* Logo */}
         <Link to="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", flexShrink: 0 }}>
           <svg viewBox="0 0 32 32" width="34" height="34" fill="none">
             <rect width="32" height="32" rx="6" fill="var(--accent)" />
@@ -53,7 +50,6 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Search — takes all remaining space */}
         <form onSubmit={handleSearch} style={{ flex: 1, minWidth: 0 }}>
           <div style={{
             display: "flex", borderRadius: 99, border: "2px solid var(--text)", overflow: "hidden", width: "100%"
@@ -77,7 +73,6 @@ export default function Navbar() {
           </div>
         </form>
 
-        {/* Right icons */}
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
           <button onClick={toggleTheme}
             style={{ padding: 8, borderRadius: "50%", color: "var(--text-secondary)", display: "flex" }}
@@ -144,8 +139,9 @@ export default function Navbar() {
                       </p>
                     </div>
                     {[
-                      { to: user.role === "vendor" ? "/vendor/dashboard" : "/dashboard", icon: user.role === "vendor" ? Store : User, label: user.role === "vendor" ? "Vendor Dashboard" : "My Account" },
+                      { to: user.role === "vendor" ? "/vendor/dashboard" : user.role === "admin" ? "/admin/dashboard" : "/dashboard", icon: user.role === "vendor" ? Store : user.role === "admin" ? Shield : User, label: user.role === "vendor" ? "Vendor Dashboard" : user.role === "admin" ? "Admin Panel" : "My Account" },
                       ...(user.role === "customer" ? [{ to: "/wishlist", icon: Heart, label: "My Favourites" }] : []),
+                      ...(user.role === "admin" ? [{ to: "/vendor/dashboard", icon: Store, label: "Vendor View" }] : []),
                     ].map((item) => (
                       <Link key={item.to} to={item.to} onClick={() => setUserMenuOpen(false)}
                         style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px", fontSize: 14, color: "var(--text)", textDecoration: "none" }}
@@ -183,7 +179,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* ── Category strip ── */}
       <div className="hidden md:block" style={{ borderTop: "1px solid var(--border-light)" }}>
         <div style={{ ...W, paddingTop: 0, paddingBottom: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 0", overflowX: "auto" }}
@@ -204,7 +199,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* ── Mobile drawer ── */}
       {mobileOpen && (
         <div className="md:hidden" style={{ borderTop: "1px solid var(--border-light)", background: "var(--bg)", ...W, paddingTop: 16, paddingBottom: 16 }}>
           {!user ? (

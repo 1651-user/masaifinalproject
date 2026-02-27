@@ -26,7 +26,6 @@ export default function Login() {
 
     return (
         <div className="min-h-screen flex" style={{ background: "var(--bg-secondary)" }}>
-            {/* Left visual */}
             <div className="hidden lg:block lg:w-1/2 relative">
                 <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&h=1200&fit=crop" alt="" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 flex flex-col justify-end p-10" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 30%, transparent)" }}>
@@ -35,9 +34,8 @@ export default function Login() {
                 </div>
             </div>
 
-            {/* Right form */}
-            <div className="flex-1 flex items-center justify-center px-6 py-12">
-                <div className="w-full max-w-sm animate-up">
+            <div className="flex-1 flex items-center justify-center px-8 sm:px-12 lg:px-20 py-12 lg:py-0">
+                <div className="w-full max-w-lg animate-up">
                     <div className="flex items-center gap-2 mb-8">
                         <svg viewBox="0 0 24 24" width="28" height="28" fill="none"><rect width="24" height="24" rx="4" fill="var(--accent)" /><text x="12" y="17" textAnchor="middle" fill="white" fontSize="11" fontWeight="800" fontFamily="serif">SL</text></svg>
                         <span className="text-lg font-bold" style={{ color: "var(--accent)" }}>ShopLocal</span>

@@ -61,8 +61,7 @@ export default function Cart() {
                     })}
                 </div>
 
-                {/* Summary */}
-                <div className="sticky top-24 self-start">
+                <div>
                     <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
                         <h2 className="text-lg font-bold mb-5" style={{ color: "var(--text)" }}>Order summary</h2>
                         <div className="space-y-2.5 mb-4 text-sm">

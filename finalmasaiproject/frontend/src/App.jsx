@@ -7,7 +7,6 @@ import { ThemeProvider } from "./context/ThemeContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
-// Lazy-load all page components for automatic code-splitting
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -18,13 +17,14 @@ const Checkout = lazy(() => import("./pages/Checkout"));
 const CustomerDashboard = lazy(() => import("./pages/CustomerDashboard"));
 const VendorDashboard = lazy(() => import("./pages/VendorDashboard"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
 function ProtectedRoute({ children, role }) {
     const { user, loading } = useAuth();
     if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>;
     if (!user) return <Navigate to="/login" />;
-    // Vendors trying to access a customer-only page → send to their dashboard
     if (!role && user.role === "vendor") return <Navigate to="/vendor/dashboard" />;
+    if (!role && user.role === "admin") return <Navigate to="/admin/dashboard" />;
     if (role && user.role !== role) return <Navigate to="/" />;
     return children;
 }
@@ -49,6 +49,7 @@ function AppRoutes() {
                 <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
                 <Route path="/dashboard" element={<ProtectedRoute role="customer"><CustomerDashboard /></ProtectedRoute>} />
                 <Route path="/vendor/dashboard" element={<ProtectedRoute role="vendor"><VendorDashboard /></ProtectedRoute>} />
+                <Route path="/admin/dashboard" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
             </Routes>
         </Suspense>
     );

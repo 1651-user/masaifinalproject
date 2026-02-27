@@ -38,7 +38,6 @@ export default function CustomerDashboard() {
     return (
         <div style={{ background: "var(--bg-secondary)", minHeight: "100vh" }}>
             <div className="max-w-4xl mx-auto px-4 py-10">
-                {/* Profile banner */}
                 <div className="rounded-2xl p-5 mb-7 flex items-center gap-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
                     <div className="w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold text-white shrink-0" style={{ background: "var(--accent)" }}>
                         {user?.name?.charAt(0).toUpperCase()}
@@ -49,7 +48,6 @@ export default function CustomerDashboard() {
                     </div>
                 </div>
 
-                {/* Tabs */}
                 <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
                     {tabs.map((t) => t.link ? (
                         <Link key={t.k} to={t.link} className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition"
@@ -65,7 +63,6 @@ export default function CustomerDashboard() {
                     ))}
                 </div>
 
-                {/* Orders */}
                 {tab === "orders" && (
                     <div className="space-y-4">
                         {loading ? (
@@ -88,7 +85,6 @@ export default function CustomerDashboard() {
                                 </div>
                                 <div className="px-5 py-4">
                                     <p className="text-xs mb-3 font-medium" style={{ color: "var(--text-muted)" }}>{order.order_items?.length || 0} item(s)</p>
-                                    {/* Tracking timeline */}
                                     <div className="flex items-center gap-0">
                                         {STEPS.map((s, i) => {
                                             const reached = STEPS.indexOf(order.status) >= i;
@@ -110,7 +106,6 @@ export default function CustomerDashboard() {
                     </div>
                 )}
 
-                {/* Profile */}
                 {tab === "profile" && (
                     <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
                         <div className="flex justify-between items-center mb-6">

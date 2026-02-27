@@ -60,3 +60,16 @@ export const vendorService = {
     getOrders: () => api.get("/vendor/orders"),
     getProducts: () => api.get("/vendor/products"),
 };
+
+export const adminService = {
+    getStats: () => api.get("/admin/stats"),
+    getUsers: (params) => api.get("/admin/users", { params }),
+    getUserById: (id) => api.get(`/admin/users/${id}`),
+    updateUser: (id, data) => api.put(`/admin/users/${id}`, data),
+    deleteUser: (id) => api.delete(`/admin/users/${id}`),
+    getAllOrders: (params) => api.get("/admin/orders", { params }),
+    getAllProducts: (params) => api.get("/admin/products", { params }),
+    toggleProductStatus: (id) => api.put(`/admin/products/${id}/toggle`),
+    getSettings: () => api.get("/admin/settings"),
+    updateSettings: (data) => api.put("/admin/settings", data),
+};

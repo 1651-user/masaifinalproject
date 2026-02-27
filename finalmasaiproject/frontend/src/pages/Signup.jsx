@@ -26,10 +26,9 @@ export default function Signup() {
     const update = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
     return (
-        <div className="min-h-screen flex items-start justify-center px-4 py-12" style={{ background: "var(--bg-secondary)" }}>
-            <div className="w-full max-w-md animate-up">
-                {/* Card */}
-                <div className="rounded-2xl p-8 shadow-sm" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
+        <div className="min-h-screen flex items-start justify-center px-4 sm:px-8 py-8 sm:py-16" style={{ background: "var(--bg-secondary)" }}>
+            <div className="w-full sm:max-w-lg animate-up">
+                <div className="rounded-2xl sm:rounded-3xl p-6 sm:p-10 shadow-sm" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
                     <div className="flex items-center gap-2 mb-6">
                         <svg viewBox="0 0 24 24" width="26" height="26" fill="none"><rect width="24" height="24" rx="4" fill="var(--accent)" /><text x="12" y="17" textAnchor="middle" fill="white" fontSize="11" fontWeight="800" fontFamily="serif">SL</text></svg>
                         <span className="font-bold" style={{ color: "var(--accent)" }}>ShopLocal</span>
@@ -38,7 +37,6 @@ export default function Signup() {
                     <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--text)" }}>Create your account</h1>
                     <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>Already a member? <Link to="/login" className="font-semibold hover:underline" style={{ color: "var(--accent)" }}>Sign in</Link></p>
 
-                    {/* Role toggle */}
                     <div className="flex p-1 rounded-full mb-5" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-light)" }}>
                         {[{ v: "customer", l: "I want to shop" }, { v: "vendor", l: "I want to sell" }].map((o) => (
                             <button key={o.v} type="button" onClick={() => setForm({ ...form, role: o.v })}

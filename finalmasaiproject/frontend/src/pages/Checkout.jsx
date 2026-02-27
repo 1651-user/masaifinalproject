@@ -49,7 +49,6 @@ export default function Checkout() {
 
             <form onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-7">
                 <div className="md:col-span-2 space-y-5">
-                    {/* Shipping */}
                     <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
                         <h2 className="text-base font-bold mb-5" style={{ color: "var(--text)" }}>Shipping address</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -66,7 +65,6 @@ export default function Checkout() {
                         </div>
                     </div>
 
-                    {/* Payment */}
                     <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
                         <h2 className="text-base font-bold mb-5" style={{ color: "var(--text)" }}>Payment method</h2>
                         <div className="space-y-2.5">
@@ -82,7 +80,6 @@ export default function Checkout() {
                         </div>
                     </div>
 
-                    {/* Coupon */}
                     <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
                         <h2 className="text-base font-bold mb-4" style={{ color: "var(--text)" }}>Coupon code</h2>
                         <div className="flex gap-2">
@@ -100,7 +97,6 @@ export default function Checkout() {
                     </div>
                 </div>
 
-                {/* Order Summary (sticky) */}
                 <div className="sticky top-24 self-start">
                     <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
                         <h2 className="text-base font-bold mb-4" style={{ color: "var(--text)" }}>Order summary</h2>

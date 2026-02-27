@@ -11,12 +11,10 @@ export default function Products() {
     const [pagination, setPagination] = useState({});
     const [loading, setLoading] = useState(true);
 
-    // Load categories once
     useEffect(() => {
         categoryService.getAll().then((r) => setCategories(r.data || [])).catch(() => { });
     }, []);
 
-    // Derive filters directly from URL — single source of truth
     const getFiltersFromURL = useCallback(() => ({
         search: searchParams.get("search") || "",
         category: searchParams.get("category") || "",
@@ -27,7 +25,6 @@ export default function Products() {
         page: parseInt(searchParams.get("page")) || 1,
     }), [searchParams]);
 
-    // Fetch whenever URL (searchParams) changes
     useEffect(() => {
         const filters = getFiltersFromURL();
         setLoading(true);
@@ -63,7 +60,6 @@ export default function Products() {
 
     return (
         <div style={{ background: "var(--bg)" }} className="min-h-screen">
-            {/* Page header */}
             <div className="border-b" style={{ borderColor: "var(--border-light)", background: "var(--bg)" }}>
                 <div className="max-w-7xl mx-auto px-4 py-5 flex flex-wrap items-center justify-between gap-3">
                     <div>
@@ -80,7 +76,6 @@ export default function Products() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        {/* Sort dropdown */}
                         <div className="relative">
                             <select
                                 value={`${filters.sort}_${filters.order}`}
@@ -109,7 +104,6 @@ export default function Products() {
                     </div>
                 </div>
 
-                {/* Filter panel */}
                 {showFilters && (
                     <div className="border-t" style={{ borderColor: "var(--border-light)", background: "var(--bg-secondary)" }}>
                         <div className="max-w-7xl mx-auto px-4 py-4 flex flex-wrap gap-4 items-end">
@@ -156,7 +150,6 @@ export default function Products() {
                 )}
             </div>
 
-            {/* Products grid */}
             <div className="max-w-7xl mx-auto px-4 py-7">
                 {loading ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
@@ -180,7 +173,6 @@ export default function Products() {
                     </div>
                 )}
 
-                {/* Pagination */}
                 {pagination.pages > 1 && (
                     <div className="flex justify-center items-center gap-2 mt-10">
                         {[...Array(pagination.pages)].map((_, i) => (

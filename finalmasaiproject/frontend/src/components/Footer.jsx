@@ -13,7 +13,6 @@ export default function Footer() {
     return (
         <footer style={{ background: "var(--bg-secondary)", borderTop: "1px solid var(--border-light)", width: "100%" }}>
             <div style={{ ...W, paddingTop: 52, paddingBottom: 28 }}>
-                {/* Links grid — auto-fill spreads across full width */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "32px 24px", marginBottom: 44 }}>
                     {Object.entries(LINKS).map(([heading, links]) => (
                         <div key={heading}>
@@ -31,7 +30,6 @@ export default function Footer() {
                     ))}
                 </div>
 
-                {/* Bottom bar */}
                 <div style={{ borderTop: "1px solid var(--border-light)", paddingTop: 24, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
