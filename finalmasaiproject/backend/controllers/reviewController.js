@@ -1,6 +1,5 @@
 const supabase = require("../config/supabase");
 
-// Get reviews for a product
 const getProductReviews = async (req, res, next) => {
     try {
         const { data, error } = await supabase
@@ -16,7 +15,6 @@ const getProductReviews = async (req, res, next) => {
     }
 };
 
-// Add review
 const addReview = async (req, res, next) => {
     try {
         const { rating, comment } = req.body;
@@ -48,7 +46,6 @@ const addReview = async (req, res, next) => {
     }
 };
 
-// Delete review
 const deleteReview = async (req, res, next) => {
     try {
         const { error } = await supabase

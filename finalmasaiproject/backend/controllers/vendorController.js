@@ -1,17 +1,14 @@
 const supabase = require("../config/supabase");
 
-// Get vendor dashboard stats
 const getDashboardStats = async (req, res, next) => {
     try {
         const vendorId = req.user.id;
 
-        // Get products count
         const { count: productCount } = await supabase
             .from("products")
             .select("id", { count: "exact", head: true })
             .eq("vendor_id", vendorId);
 
-        // Get order items for this vendor
         const { data: orderItems } = await supabase
             .from("order_items")
             .select("quantity, price, orders(status, created_at)")
@@ -26,7 +23,6 @@ const getDashboardStats = async (req, res, next) => {
 
         const totalOrders = new Set(orderItems?.map((item) => item.order_id)).size || orderItems?.length || 0;
 
-        // Get low stock products
         const { data: lowStock } = await supabase
             .from("products")
             .select("id, name, stock")
@@ -35,7 +31,6 @@ const getDashboardStats = async (req, res, next) => {
             .eq("is_active", true)
             .order("stock");
 
-        // Get recent orders
         const { data: recentOrders } = await supabase
             .from("order_items")
             .select("*, products(name, images), orders(id, status, total, created_at, users(name, email))")
@@ -58,7 +53,6 @@ const getDashboardStats = async (req, res, next) => {
     }
 };
 
-// Get vendor orders
 const getVendorOrders = async (req, res, next) => {
     try {
         const { data, error } = await supabase
@@ -74,7 +68,6 @@ const getVendorOrders = async (req, res, next) => {
     }
 };
 
-// Get vendor products
 const getVendorProducts = async (req, res, next) => {
     try {
         const { data, error } = await supabase

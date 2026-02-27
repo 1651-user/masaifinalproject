@@ -1,6 +1,5 @@
 const supabase = require("../config/supabase");
 
-// Get all products (with search, filter, pagination)
 const getProducts = async (req, res, next) => {
     try {
         const {
@@ -73,7 +72,6 @@ const getProducts = async (req, res, next) => {
     }
 };
 
-// Get single product
 const getProduct = async (req, res, next) => {
     try {
         const { data, error } = await supabase
@@ -102,7 +100,6 @@ const getProduct = async (req, res, next) => {
     }
 };
 
-// Create product (vendor only)
 const createProduct = async (req, res, next) => {
     try {
         const { name, description, price, compare_price, category_id, images, stock, sku } = req.body;
@@ -134,12 +131,10 @@ const createProduct = async (req, res, next) => {
     }
 };
 
-// Update product (vendor only, own products)
 const updateProduct = async (req, res, next) => {
     try {
         const { name, description, price, compare_price, category_id, images, stock, sku, is_active } = req.body;
 
-        // Verify ownership
         const { data: existing } = await supabase
             .from("products")
             .select("vendor_id")
@@ -175,7 +170,6 @@ const updateProduct = async (req, res, next) => {
     }
 };
 
-// Delete product (vendor only, own products)
 const deleteProduct = async (req, res, next) => {
     try {
         const { data: existing } = await supabase

@@ -1,6 +1,5 @@
 const supabase = require("../config/supabase");
 
-// Create order from cart
 const createOrder = async (req, res, next) => {
     try {
         const { shipping_address, payment_method = "cod", coupon_code } = req.body;
@@ -9,7 +8,6 @@ const createOrder = async (req, res, next) => {
             return res.status(400).json({ error: "Shipping address is required." });
         }
 
-        // Get cart items
         const { data: cartItems, error: cartError } = await supabase
             .from("cart_items")
             .select("*, products(id, name, price, stock, vendor_id)")
@@ -20,11 +18,9 @@ const createOrder = async (req, res, next) => {
             return res.status(400).json({ error: "Cart is empty." });
         }
 
-        // Calculate total
         let total = cartItems.reduce((sum, item) => sum + item.products.price * item.quantity, 0);
         let discount_amount = 0;
 
-        // Apply coupon if provided
         if (coupon_code) {
             const { data: coupon } = await supabase
                 .from("coupons")
@@ -37,7 +33,6 @@ const createOrder = async (req, res, next) => {
                 discount_amount = (total * coupon.discount_percent) / 100;
                 total -= discount_amount;
 
-                // Increment used count
                 await supabase
                     .from("coupons")
                     .update({ used_count: coupon.used_count + 1 })
@@ -45,7 +40,6 @@ const createOrder = async (req, res, next) => {
             }
         }
 
-        // Create order
         const { data: order, error: orderError } = await supabase
             .from("orders")
             .insert({
@@ -61,7 +55,6 @@ const createOrder = async (req, res, next) => {
 
         if (orderError) throw orderError;
 
-        // Create order items
         const orderItems = cartItems.map((item) => ({
             order_id: order.id,
             product_id: item.product_id,
@@ -73,7 +66,6 @@ const createOrder = async (req, res, next) => {
         const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
         if (itemsError) throw itemsError;
 
-        // Update stock
         for (const item of cartItems) {
             await supabase
                 .from("products")
@@ -81,7 +73,6 @@ const createOrder = async (req, res, next) => {
                 .eq("id", item.product_id);
         }
 
-        // Clear cart
         await supabase.from("cart_items").delete().eq("user_id", req.user.id);
 
         res.status(201).json(order);
@@ -90,7 +81,6 @@ const createOrder = async (req, res, next) => {
     }
 };
 
-// Get customer orders
 const getOrders = async (req, res, next) => {
     try {
         const { data, error } = await supabase
@@ -106,7 +96,6 @@ const getOrders = async (req, res, next) => {
     }
 };
 
-// Get single order
 const getOrder = async (req, res, next) => {
     try {
         const { data, error } = await supabase
@@ -133,7 +122,6 @@ const getOrder = async (req, res, next) => {
     }
 };
 
-// Update order status (vendor)
 const updateOrderStatus = async (req, res, next) => {
     try {
         const { status } = req.body;

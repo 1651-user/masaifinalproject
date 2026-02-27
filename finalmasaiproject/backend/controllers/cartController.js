@@ -1,6 +1,5 @@
 const supabase = require("../config/supabase");
 
-// Get cart items
 const getCart = async (req, res, next) => {
     try {
         const { data, error } = await supabase
@@ -16,7 +15,6 @@ const getCart = async (req, res, next) => {
     }
 };
 
-// Add to cart
 const addToCart = async (req, res, next) => {
     try {
         const { product_id, quantity = 1 } = req.body;
@@ -25,7 +23,6 @@ const addToCart = async (req, res, next) => {
             return res.status(400).json({ error: "Product ID is required." });
         }
 
-        // Check stock
         const { data: product } = await supabase
             .from("products")
             .select("stock, is_active")
@@ -39,7 +36,6 @@ const addToCart = async (req, res, next) => {
             return res.status(400).json({ error: "Insufficient stock." });
         }
 
-        // Upsert cart item
         const { data: existing } = await supabase
             .from("cart_items")
             .select("id, quantity")
@@ -70,7 +66,6 @@ const addToCart = async (req, res, next) => {
     }
 };
 
-// Update cart item quantity
 const updateCartItem = async (req, res, next) => {
     try {
         const { quantity } = req.body;
@@ -95,7 +90,6 @@ const updateCartItem = async (req, res, next) => {
     }
 };
 
-// Remove from cart
 const removeFromCart = async (req, res, next) => {
     try {
         const { error } = await supabase
@@ -111,7 +105,6 @@ const removeFromCart = async (req, res, next) => {
     }
 };
 
-// Clear cart
 const clearCart = async (req, res, next) => {
     try {
         const { error } = await supabase

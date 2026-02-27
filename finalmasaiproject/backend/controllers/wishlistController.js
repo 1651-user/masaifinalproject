@@ -1,6 +1,5 @@
 const supabase = require("../config/supabase");
 
-// Get wishlist
 const getWishlist = async (req, res, next) => {
     try {
         const { data, error } = await supabase
@@ -16,7 +15,6 @@ const getWishlist = async (req, res, next) => {
     }
 };
 
-// Add to wishlist
 const addToWishlist = async (req, res, next) => {
     try {
         const { product_id } = req.body;
@@ -43,7 +41,6 @@ const addToWishlist = async (req, res, next) => {
     }
 };
 
-// Remove from wishlist
 const removeFromWishlist = async (req, res, next) => {
     try {
         const { error } = await supabase

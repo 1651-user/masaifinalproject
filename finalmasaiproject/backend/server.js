@@ -16,19 +16,18 @@ const wishlistRoutes = require("./routes/wishlist");
 const couponRoutes = require("./routes/coupons");
 const vendorRoutes = require("./routes/vendor");
 const uploadRoutes = require("./routes/upload");
+const adminRoutes = require("./routes/admin");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: [process.env.FRONTEND_URL, "http://localhost:5173"],
     credentials: true,
 }));
 
-// Security headers
 app.use(helmet());
 
-// Rate limiting — global: 100 req / 15 min per IP
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
@@ -38,7 +37,6 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
-// Stricter limiter for auth routes: 10 req / 15 min per IP
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10,
@@ -47,12 +45,9 @@ const authLimiter = rateLimit({
     message: { error: "Too many authentication attempts, please try again later." },
 });
 
-// Middleware
-
 app.use(express.json());
 app.use(morgan("dev"));
 
-// Routes
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
@@ -63,6 +58,7 @@ app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/vendor", vendorRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
@@ -71,7 +67,6 @@ app.get("/api/health", (req, res) => {
 
 app.use(errorHandler);
 
-// Only bind the port when running directly (not during tests)
 if (require.main === module) {
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);

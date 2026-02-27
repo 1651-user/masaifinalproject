@@ -2,7 +2,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const supabase = require("../config/supabase");
 
-// Register
 const register = async (req, res, next) => {
     try {
         const { email, password, name, role = "customer", store_name } = req.body;
@@ -11,7 +10,6 @@ const register = async (req, res, next) => {
             return res.status(400).json({ error: "Email, password, and name are required." });
         }
 
-        // Check if user exists
         const { data: existing } = await supabase
             .from("users")
             .select("id")
@@ -50,7 +48,6 @@ const register = async (req, res, next) => {
     }
 };
 
-// Login
 const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -87,7 +84,6 @@ const login = async (req, res, next) => {
     }
 };
 
-// Get current user profile
 const getProfile = async (req, res, next) => {
     try {
         const { data: user, error } = await supabase
@@ -103,7 +99,6 @@ const getProfile = async (req, res, next) => {
     }
 };
 
-// Update profile
 const updateProfile = async (req, res, next) => {
     try {
         const { name, phone, address, avatar_url, store_name, store_description } = req.body;

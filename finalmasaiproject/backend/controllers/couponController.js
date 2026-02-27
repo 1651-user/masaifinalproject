@@ -1,6 +1,5 @@
 const supabase = require("../config/supabase");
 
-// Get vendor coupons
 const getCoupons = async (req, res, next) => {
     try {
         const { data, error } = await supabase
@@ -16,7 +15,6 @@ const getCoupons = async (req, res, next) => {
     }
 };
 
-// Create coupon
 const createCoupon = async (req, res, next) => {
     try {
         const { code, discount_percent, max_uses = 100, expires_at } = req.body;
@@ -49,7 +47,6 @@ const createCoupon = async (req, res, next) => {
     }
 };
 
-// Validate coupon (public)
 const validateCoupon = async (req, res, next) => {
     try {
         const { code } = req.params;
@@ -79,7 +76,6 @@ const validateCoupon = async (req, res, next) => {
     }
 };
 
-// Toggle coupon status
 const toggleCoupon = async (req, res, next) => {
     try {
         const { data: existing } = await supabase
@@ -106,7 +102,6 @@ const toggleCoupon = async (req, res, next) => {
     }
 };
 
-// Delete coupon
 const deleteCoupon = async (req, res, next) => {
     try {
         const { error } = await supabase
