@@ -53,7 +53,6 @@ finalmasaiproject/
     middleware/     Auth and error handling
     routes/         API route definitions
     database/       Schema SQL reference
-    tests/          Automated tests
     server.js       Express app entry point
   frontend/
     src/
@@ -127,12 +126,6 @@ npm run dev
 | GET | /api/orders | Get order history |
 | POST | /api/upload | Upload a product image (vendor only) |
 | GET | /api/vendor/dashboard | Vendor sales and analytics |
-
-## Running Tests
-
-```
-npm test
-```
 
 ## Environment Notes
 
