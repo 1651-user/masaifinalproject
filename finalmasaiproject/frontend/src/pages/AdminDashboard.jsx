@@ -8,7 +8,6 @@ import {
 import { adminService } from "../services";
 import toast from "react-hot-toast";
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const fmt = (n) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—";
@@ -88,7 +87,6 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
     );
 }
 
-// ─── Overview Tab ─────────────────────────────────────────────────────────────
 
 function OverviewTab() {
     const [data, setData] = useState(null);
@@ -113,7 +111,7 @@ function OverviewTab() {
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-                {/* Recent Users */}
+                {}
                 <div style={{ background: "var(--bg-card)", borderRadius: 18, padding: 24, border: "1px solid var(--border-light)" }}>
                     <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, color: "var(--text)", display: "flex", alignItems: "center", gap: 8 }}>
                         <Users size={16} color="#6366f1" /> New Members
@@ -137,7 +135,7 @@ function OverviewTab() {
                     </div>
                 </div>
 
-                {/* Recent Orders */}
+                {}
                 <div style={{ background: "var(--bg-card)", borderRadius: 18, padding: 24, border: "1px solid var(--border-light)" }}>
                     <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, color: "var(--text)", display: "flex", alignItems: "center", gap: 8 }}>
                         <ShoppingBag size={16} color="#f59e0b" /> Latest Orders
@@ -163,7 +161,6 @@ function OverviewTab() {
     );
 }
 
-// ─── Users Tab ────────────────────────────────────────────────────────────────
 
 function UsersTab() {
     const [users, setUsers] = useState([]);
@@ -227,7 +224,7 @@ function UsersTab() {
     return (
         <div>
             {confirm && <ConfirmDialog message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() => setConfirm(null)} />}
-            {/* Filters */}
+            {}
             <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
                 <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
                     <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
@@ -329,7 +326,7 @@ function UsersTab() {
                 </div>
             )}
 
-            {/* Pagination */}
+            {}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 20, flexWrap: "wrap", gap: 12 }}>
                 <p style={{ fontSize: 13, color: "var(--text-muted)" }}>
                     {pagination.total} user{pagination.total !== 1 ? "s" : ""} total
@@ -350,7 +347,6 @@ function UsersTab() {
     );
 }
 
-// ─── Orders Tab ───────────────────────────────────────────────────────────────
 
 function OrdersTab() {
     const [orders, setOrders] = useState([]);
@@ -439,7 +435,6 @@ function OrdersTab() {
     );
 }
 
-// ─── Products Tab ─────────────────────────────────────────────────────────────
 
 function ProductsTab() {
     const [products, setProducts] = useState([]);
@@ -561,7 +556,6 @@ function ProductsTab() {
     );
 }
 
-// ─── Settings Tab ─────────────────────────────────────────────────────────────
 
 const DEFAULT_SETTINGS = {
     platform_name: "ShopLocal",
@@ -581,7 +575,7 @@ function SettingsTab() {
         adminService.getSettings()
             .then(r => setSettings(s => ({ ...s, ...r.data })))
             .catch(() => {
-                // Table might not exist yet — just use defaults
+                
                 toast("Using default settings. Save to persist.", { icon: "ℹ️" });
             })
             .finally(() => setLoading(false));
@@ -625,7 +619,7 @@ function SettingsTab() {
                     </div>
                 ))}
 
-                {/* Maintenance Mode toggle */}
+                {}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", background: "var(--bg-secondary)", borderRadius: 14 }}>
                     <div>
                         <p style={{ fontWeight: 700, fontSize: 14, color: "var(--text)" }}>Maintenance Mode</p>
@@ -651,7 +645,6 @@ function SettingsTab() {
     );
 }
 
-// ─── Main AdminDashboard ──────────────────────────────────────────────────────
 
 const TABS = [
     { id: "overview", label: "Overview", icon: BarChart2 },
@@ -683,7 +676,7 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                {/* Tab Bar */}
+                {}
                 <div style={{ display: "flex", gap: 4, overflowX: "auto" }} className="no-scrollbar">
                     {TABS.map(tab => {
                         const Icon = tab.icon;
@@ -704,7 +697,7 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            {/* Tab Content */}
+            {}
             <div style={{ padding: "32px clamp(16px, 5vw, 64px)", maxWidth: 1400, margin: "0 auto" }}>
                 {activeTab === "overview" && <OverviewTab />}
                 {activeTab === "users" && <UsersTab />}

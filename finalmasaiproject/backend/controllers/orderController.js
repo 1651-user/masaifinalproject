@@ -109,7 +109,7 @@ const getOrder = async (req, res, next) => {
             return res.status(404).json({ error: "Order not found." });
         }
 
-        // Only allow order owner or vendor with items in order to view
+        
         if (data.user_id !== req.user.id) {
             const isVendor = data.order_items.some((item) => item.vendor_id === req.user.id);
             if (!isVendor) {
@@ -148,7 +148,7 @@ const updateOrderStatus = async (req, res, next) => {
 
 const cancelOrder = async (req, res, next) => {
     try {
-        // Fetch the order and verify ownership
+        
         const { data: order, error: fetchError } = await supabase
             .from("orders")
             .select("*, order_items(product_id, quantity, products(stock))")
@@ -164,7 +164,7 @@ const cancelOrder = async (req, res, next) => {
             return res.status(400).json({ error: "Order is already cancelled." });
         }
 
-        // Update order status to cancelled
+        
         const { data: updatedOrder, error: cancelError } = await supabase
             .from("orders")
             .update({ status: "cancelled", updated_at: new Date().toISOString() })
@@ -174,7 +174,7 @@ const cancelOrder = async (req, res, next) => {
 
         if (cancelError) throw cancelError;
 
-        // Restore product stock for each item
+        
         for (const item of order.order_items) {
             await supabase
                 .from("products")

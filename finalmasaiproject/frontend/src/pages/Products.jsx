@@ -37,7 +37,7 @@ export default function Products() {
             })
             .catch(() => setProducts([]))
             .finally(() => setLoading(false));
-    }, [searchParams.toString()]); // re-run whenever URL changes
+    }, [searchParams.toString()]); 
 
     const filters = getFiltersFromURL();
 

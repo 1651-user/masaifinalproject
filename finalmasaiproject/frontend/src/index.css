@@ -1,9 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
-/* ══════════════════════════════════════════
-   LIGHT THEME — warm, upscale marketplace
-   ══════════════════════════════════════════ */
+
 :root {
   --bg: #faf9f7;
   --bg-secondary: #f3f0ec;
@@ -29,9 +27,7 @@
   --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
 }
 
-/* ══════════════════════════════════════════
-   DARK THEME — deep, rich tones
-   ══════════════════════════════════════════ */
+
 .dark {
   --bg: #0f0f0e;
   --bg-secondary: #1a1a18;
@@ -53,7 +49,7 @@
   --card-shadow-hover: 0 12px 36px rgba(0, 0, 0, 0.28);
 }
 
-/* ── Reset ── */
+
 *,
 *::before,
 *::after {
@@ -99,9 +95,7 @@ select {
   font: inherit;
 }
 
-/* ══════════════════════════════════════════
-   BUTTONS — lush, tactile, elevated
-   ══════════════════════════════════════════ */
+
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -157,9 +151,7 @@ select {
   box-shadow: var(--card-shadow-hover);
 }
 
-/* ══════════════════════════════════════════
-   CARDS — clean, elevated, spacious
-   ══════════════════════════════════════════ */
+
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
@@ -174,9 +166,7 @@ select {
   transform: translateY(-5px);
 }
 
-/* ══════════════════════════════════════════
-   INPUTS — roomy, clear focus state
-   ══════════════════════════════════════════ */
+
 .input {
   width: 100%;
   padding: 13px 18px;
@@ -204,9 +194,7 @@ select {
   cursor: not-allowed;
 }
 
-/* ══════════════════════════════════════════
-   BADGES
-   ══════════════════════════════════════════ */
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -217,18 +205,14 @@ select {
   letter-spacing: 0.02em;
 }
 
-/* ══════════════════════════════════════════
-   LAYOUT
-   ══════════════════════════════════════════ */
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
 }
 
-/* ══════════════════════════════════════════
-   ANIMATIONS
-   ══════════════════════════════════════════ */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -307,9 +291,7 @@ select {
   animation: shimmer 1.6s ease-in-out infinite;
 }
 
-/* ══════════════════════════════════════════
-   PRODUCT / LISTING CARDS
-   ══════════════════════════════════════════ */
+
 .listing-card {
   background: transparent;
   cursor: pointer;
@@ -329,9 +311,7 @@ select {
   transition: transform 0.6s cubic-bezier(.4, 0, .2, 1);
 }
 
-/* ══════════════════════════════════════════
-   TYPOGRAPHY
-   ══════════════════════════════════════════ */
+
 .section-title {
   font-size: 26px;
   font-weight: 800;
@@ -340,9 +320,7 @@ select {
   letter-spacing: -0.5px;
 }
 
-/* ══════════════════════════════════════════
-   SCROLLBAR
-   ══════════════════════════════════════════ */
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -370,17 +348,13 @@ select {
   background: #444;
 }
 
-/* ══════════════════════════════════════════
-   FOCUS
-   ══════════════════════════════════════════ */
+
 *:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-/* ══════════════════════════════════════════
-   CLAMP UTILITIES
-   ══════════════════════════════════════════ */
+
 .line-clamp-1 {
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -405,9 +379,7 @@ select {
   overflow: hidden;
 }
 
-/* ══════════════════════════════════════════
-   HELPFUL VOTE BUTTON
-   ══════════════════════════════════════════ */
+
 .helpful-btn {
   display: inline-flex;
   align-items: center;
@@ -435,9 +407,7 @@ select {
   background: var(--accent-light);
 }
 
-/* ══════════════════════════════════════════
-   RESPONSIVE
-   ══════════════════════════════════════════ */
+
 @media (max-width: 640px) {
   .section-title {
     font-size: 21px;

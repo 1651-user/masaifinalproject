@@ -1,6 +1,5 @@
 const supabase = require("../config/supabase");
 
-// ─── Platform Stats ───────────────────────────────────────────────────────────
 
 const getStats = async (req, res, next) => {
     try {
@@ -40,7 +39,6 @@ const getStats = async (req, res, next) => {
     }
 };
 
-// ─── User Management ──────────────────────────────────────────────────────────
 
 const getUsers = async (req, res, next) => {
     try {
@@ -130,7 +128,7 @@ const updateUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
     try {
-        // Prevent admin from deleting themselves
+        
         if (req.params.id === req.user.id) {
             return res.status(400).json({ error: "Cannot delete your own admin account." });
         }
@@ -143,7 +141,6 @@ const deleteUser = async (req, res, next) => {
     }
 };
 
-// ─── Orders (All Platform) ────────────────────────────────────────────────────
 
 const getAllOrders = async (req, res, next) => {
     try {
@@ -171,7 +168,6 @@ const getAllOrders = async (req, res, next) => {
     }
 };
 
-// ─── Products (All Platform) ──────────────────────────────────────────────────
 
 const getAllProducts = async (req, res, next) => {
     try {
@@ -218,14 +214,13 @@ const toggleProductStatus = async (req, res, next) => {
     }
 };
 
-// ─── Platform Settings ────────────────────────────────────────────────────────
 
 const getSettings = async (req, res, next) => {
     try {
         const { data, error } = await supabase.from("platform_settings").select("*");
         if (error) throw error;
 
-        // Convert array of {key, value} rows to a plain object for convenience
+        
         const settings = {};
         (data || []).forEach(row => { settings[row.key] = row.value; });
         res.json(settings);

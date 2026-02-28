@@ -25,8 +25,8 @@ export default function VendorDashboard() {
         name: "", description: "", price: "", compare_price: "",
         stock: "", category_id: "", images: "",
     });
-    const [imageMode, setImageMode] = useState("url"); // "url" | "device"
-    const [uploadingFiles, setUploadingFiles] = useState([]); // [{ name, status }]
+    const [imageMode, setImageMode] = useState("url"); 
+    const [uploadingFiles, setUploadingFiles] = useState([]); 
 
     const [listSearch, setListSearch] = useState("");
     const [listCategory, setListCategory] = useState("");
@@ -47,7 +47,7 @@ export default function VendorDashboard() {
                 categoryService.getAll(),
                 couponService.getAll(),
             ]);
-            setDashData(dash.data);           // { stats, low_stock_products, recent_orders }
+            setDashData(dash.data);           
             setProducts(Array.isArray(prods.data) ? prods.data : []);
             setOrders(Array.isArray(ords.data) ? ords.data : []);
             setCategories(Array.isArray(cats.data) ? cats.data : []);
@@ -144,7 +144,7 @@ export default function VendorDashboard() {
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error);
-                // Append the returned URL to the images string
+                
                 setForm(prev => ({
                     ...prev,
                     images: prev.images ? `${prev.images}, ${data.url}` : data.url,
@@ -166,7 +166,7 @@ export default function VendorDashboard() {
                 toast.error(`Failed to upload ${file.name}: ${err.message}`);
             }
         }
-        // Reset file input
+        
         e.target.value = "";
     };
 
@@ -497,7 +497,7 @@ export default function VendorDashboard() {
                                     </div>
                                 </div>
 
-                                {/* Image preview is now handled inside the image section above */}
+                                {}
 
 
                                 <div className="flex gap-2 pt-1">

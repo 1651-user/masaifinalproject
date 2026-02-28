@@ -4,10 +4,10 @@ import { ArrowRight, Truck, Shield, RefreshCw, Headphones } from "lucide-react";
 import { productService, categoryService } from "../services";
 import ProductCard from "../components/ProductCard";
 
-/* fluid: fills 100% width, with responsive padding on sides */
+
 const W = { width: "100%", paddingLeft: "clamp(16px, 5vw, 64px)", paddingRight: "clamp(16px, 5vw, 64px)" };
 
-/* Reliable fallback images for categories with broken image_url */
+
 const CATEGORY_FALLBACK = {
     "food": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop",
     "beverage": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop",
@@ -74,7 +74,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        {/* Side banners */}
+                        {}
                         {[
                             { label: "Handmade gifts", cat: "handmade", bg: "linear-gradient(135deg, #f97316 0%, #dc2626 100%)" },
                             { label: "Fashion finds", cat: "clothing", bg: "linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)" },

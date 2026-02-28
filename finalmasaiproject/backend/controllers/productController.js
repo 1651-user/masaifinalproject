@@ -23,12 +23,12 @@ const getProducts = async (req, res, next) => {
             query = query.ilike("name", `%${search}%`);
         }
         if (category) {
-            // Support both UUID and slug values for category
+            
             const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(category);
             if (isUUID) {
                 query = query.eq("category_id", category);
             } else {
-                // slug — resolve to category_id first
+                
                 const { data: cat } = await supabase
                     .from("categories")
                     .select("id")
@@ -37,7 +37,7 @@ const getProducts = async (req, res, next) => {
                 if (cat) {
                     query = query.eq("category_id", cat.id);
                 } else {
-                    // No matching category — return empty
+                    
                     return res.json({ products: [], pagination: { page: 1, limit: parseInt(limit), total: 0, pages: 0 } });
                 }
             }
@@ -84,7 +84,7 @@ const getProduct = async (req, res, next) => {
             return res.status(404).json({ error: "Product not found." });
         }
 
-        // Get average rating
+        
         const { data: reviews } = await supabase
             .from("reviews")
             .select("rating")

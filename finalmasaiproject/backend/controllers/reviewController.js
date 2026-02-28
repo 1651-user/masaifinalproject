@@ -79,7 +79,7 @@ const updateReview = async (req, res, next) => {
 
 const voteHelpful = async (req, res, next) => {
     try {
-        // Get current helpful_count
+        
         const { data: review, error: fetchError } = await supabase
             .from("reviews")
             .select("helpful_count")
