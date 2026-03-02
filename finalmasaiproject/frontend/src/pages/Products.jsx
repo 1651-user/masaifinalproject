@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import { productService, categoryService } from "../services";
 import ProductCard from "../components/ProductCard";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 export default function Products() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -10,6 +12,13 @@ export default function Products() {
     const [categories, setCategories] = useState([]);
     const [pagination, setPagination] = useState({});
     const [loading, setLoading] = useState(true);
+    const container = useRef(null);
+
+    useGSAP(() => {
+        if (!loading && products.length > 0) {
+            gsap.from(".product-card-anim", { y: 20, opacity: 0, duration: 0.5, stagger: 0.05, ease: "power2.out" });
+        }
+    }, { scope: container, dependencies: [loading, products] });
 
     useEffect(() => {
         categoryService.getAll().then((r) => setCategories(r.data || [])).catch(() => { });
@@ -59,7 +68,7 @@ export default function Products() {
     const [showFilters, setShowFilters] = useState(false);
 
     return (
-        <div style={{ background: "var(--bg)" }} className="min-h-screen">
+        <div ref={container} style={{ background: "var(--bg)" }} className="min-h-screen">
             <div className="border-b" style={{ borderColor: "var(--border-light)", background: "var(--bg)" }}>
                 <div className="max-w-7xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4">
                     <div>
@@ -163,7 +172,7 @@ export default function Products() {
                     </div>
                 ) : products.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-7">
-                        {products.map((p) => <ProductCard key={p.id} product={p} />)}
+                        {products.map((p) => <div key={p.id} className="product-card-anim"><ProductCard product={p} /></div>)}
                     </div>
                 ) : (
                     <div className="text-center py-20">
