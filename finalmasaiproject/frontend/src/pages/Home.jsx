@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { ArrowRight, Truck, Shield, RefreshCw, Headphones } from "lucide-react";
 import { productService, categoryService } from "../services";
 import ProductCard from "../components/ProductCard";
@@ -35,6 +37,15 @@ export default function Home() {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const container = useRef(null);
+
+    useGSAP(() => {
+        gsap.from(".hero-content", { y: 20, opacity: 0, duration: 0.8, stagger: 0.15, ease: "power2.out" });
+        if (!loading && products.length > 0) {
+            gsap.from(".product-card-anim", { y: 30, opacity: 0, duration: 0.6, stagger: 0.1, ease: "power2.out", delay: 0.2 });
+        }
+    }, { scope: container, dependencies: [loading, products] });
+
     useEffect(() => {
         Promise.all([
             productService.getAll({ limit: 8, sort: "created_at", order: "desc" }),
@@ -62,13 +73,13 @@ export default function Home() {
                                 background: "linear-gradient(135deg, var(--accent) 0%, #1a1a2e 100%)",
                             }}>
                             <div style={{ position: "relative", padding: "clamp(28px, 5vw, 52px)", display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 320 }}>
-                                <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)", marginBottom: 12 }}>
+                                <p className="hero-content" style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)", marginBottom: 12 }}>
                                     ShopLocal picks
                                 </p>
-                                <h1 style={{ fontSize: "clamp(26px, 4vw, 44px)", fontWeight: 800, color: "white", lineHeight: 1.2, marginBottom: 28 }}>
+                                <h1 className="hero-content" style={{ fontSize: "clamp(26px, 4vw, 44px)", fontWeight: 800, color: "white", lineHeight: 1.2, marginBottom: 28 }}>
                                     Discover<br />something<br />extraordinary
                                 </h1>
-                                <Link to="/products" className="btn-primary" style={{ alignSelf: "flex-start", fontSize: 15 }}>
+                                <Link to="/products" className="btn-primary hero-content" style={{ alignSelf: "flex-start", fontSize: 15 }}>
                                     Shop now
                                 </Link>
                             </div>
@@ -126,14 +137,14 @@ export default function Home() {
                                     style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textDecoration: "none" }}
                                     className="group">
                                     <div style={{ width: 76, height: 76, borderRadius: "50%", overflow: "hidden", border: "2px solid var(--border-light)", transition: "border-color 0.2s, transform 0.2s" }}
-                                        className="group-hover:border-[var(--accent)] group-hover:scale-105">
+                                        className="category-card group-hover:border-[var(--accent)] group-hover:scale-105">
                                         {cat.image_url
                                             ? <img src={cat.image_url} alt={cat.name} style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                                 onError={(e) => { e.target.onerror = null; e.target.src = getCategoryFallback(cat.name); }} />
                                             : <img src={getCategoryFallback(cat.name)} alt={cat.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                                         }
                                     </div>
-                                    <span style={{ fontSize: 12, fontWeight: 600, textAlign: "center", color: "var(--text-secondary)", lineHeight: 1.3 }}>{cat.name}</span>
+                                    <span className="category-card" style={{ fontSize: 12, fontWeight: 600, textAlign: "center", color: "var(--text-secondary)", lineHeight: 1.3 }}>{cat.name}</span>
                                 </Link>
                             ))}
                         </div>
@@ -164,7 +175,7 @@ export default function Home() {
                         </div>
                     ) : products.length > 0 ? (
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 28 }}>
-                            {products.map((p) => <ProductCard key={p.id} product={p} />)}
+                            {products.map((p) => <div key={p.id} className="product-card-anim"><ProductCard product={p} /></div>)}
                         </div>
                     ) : (
                         <div style={{ textAlign: "center", padding: "64px 32px", borderRadius: 20, border: "2px dashed var(--border)", background: "var(--bg)" }}>

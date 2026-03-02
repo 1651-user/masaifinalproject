@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { useParams, Link } from "react-router-dom";
 import { Heart, ShoppingCart, Star, Minus, Plus, Truck, Shield, RefreshCw, ChevronLeft, ThumbsUp } from "lucide-react";
 import { productService, reviewService } from "../services";
@@ -17,6 +19,15 @@ export default function ProductDetail() {
     const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState(0);
     const [loading, setLoading] = useState(true);
+    const container = useRef(null);
+
+    useGSAP(() => {
+        if (!loading && product) {
+            gsap.from(".product-gallery", { x: -30, opacity: 0, duration: 0.7, ease: "power2.out" });
+            gsap.from(".product-info", { x: 30, opacity: 0, duration: 0.7, ease: "power2.out", delay: 0.1 });
+            gsap.from(".product-reviews", { y: 30, opacity: 0, duration: 0.6, ease: "power2.out", delay: 0.3 });
+        }
+    }, { scope: container, dependencies: [loading, product] });
     const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
     const [submitting, setSubmitting] = useState(false);
     const { isWishlisted, toggleWishlist } = useWishlist();
@@ -104,14 +115,14 @@ export default function ProductDetail() {
     const avgRating = product.avg_rating || 0;
 
     return (
-        <div style={{ background: "var(--bg)" }} className="min-h-screen pb-20">
+        <div ref={container} style={{ background: "var(--bg)" }} className="min-h-screen pb-20">
             <div className="max-w-5xl mx-auto px-6 py-8">
                 <Link to="/products" className="inline-flex items-center gap-1 text-sm mb-8 hover:underline" style={{ color: "var(--text-muted)" }}>
                     <ChevronLeft size={14} /> Back to results
                 </Link>
 
                 <div className="grid md:grid-cols-2 gap-12">
-                    <div>
+                    <div className="product-gallery">
                         <div className="relative aspect-square rounded-2xl overflow-hidden mb-3" style={{ background: "var(--bg-secondary)" }}>
                             <img src={images[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
                             {user?.role !== "vendor" && (
@@ -135,7 +146,7 @@ export default function ProductDetail() {
                         )}
                     </div>
 
-                    <div className="animate-up">
+                    <div className="product-info animate-up">
                         {product.users?.store_name && (
                             <p className="text-sm font-semibold mb-1" style={{ color: "var(--accent)" }}>{product.users.store_name}</p>
                         )}
@@ -214,7 +225,7 @@ export default function ProductDetail() {
                     </div>
                 </div>
 
-                <div className="mt-14">
+                <div className="mt-14 product-reviews">
                     <h2 className="text-xl font-bold mb-6" style={{ color: "var(--text)" }}>
                         Reviews for this listing ({reviews.length})
                     </h2>

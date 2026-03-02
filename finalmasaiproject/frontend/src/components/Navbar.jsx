@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { Search, ShoppingCart, Heart, User, Menu, X, Sun, Moon, ChevronDown, LogOut, Store, Shield } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -21,6 +23,11 @@ const W = { width: "100%", paddingLeft: "clamp(16px, 5vw, 64px)", paddingRight: 
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const navRef = useRef(null);
+
+  useGSAP(() => {
+    gsap.from(navRef.current, { y: -100, opacity: 0, duration: 0.6, ease: "power2.out" });
+  }, { scope: navRef });
   const { itemCount } = useCart();
   const { wishlistItems } = useWishlist();
   const { dark, toggle: toggleTheme } = useTheme();
