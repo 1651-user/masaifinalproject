@@ -25,8 +25,8 @@ export default function VendorDashboard() {
         name: "", description: "", price: "", compare_price: "",
         stock: "", category_id: "", images: "",
     });
-    const [imageMode, setImageMode] = useState("url"); 
-    const [uploadingFiles, setUploadingFiles] = useState([]); 
+    const [imageMode, setImageMode] = useState("url");
+    const [uploadingFiles, setUploadingFiles] = useState([]);
 
     const [listSearch, setListSearch] = useState("");
     const [listCategory, setListCategory] = useState("");
@@ -47,10 +47,10 @@ export default function VendorDashboard() {
                 categoryService.getAll(),
                 couponService.getAll(),
             ]);
-            setDashData(dash.data);           
+            setDashData(dash.data);
             setProducts(Array.isArray(prods.data) ? prods.data : []);
             setOrders(Array.isArray(ords.data) ? ords.data : []);
-            setCategories(Array.isArray(cats.data) ? cats.data : []);
+            setCategories(Array.isArray(cats.data) ? cats.data : (Array.isArray(cats) ? cats : []));
             setCoupons(Array.isArray(cps.data) ? cps.data : []);
         } catch (err) {
             console.error("VendorDashboard loadData error:", err);
@@ -144,7 +144,7 @@ export default function VendorDashboard() {
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error);
-                
+
                 setForm(prev => ({
                     ...prev,
                     images: prev.images ? `${prev.images}, ${data.url}` : data.url,
@@ -166,7 +166,7 @@ export default function VendorDashboard() {
                 toast.error(`Failed to upload ${file.name}: ${err.message}`);
             }
         }
-        
+
         e.target.value = "";
     };
 
@@ -213,97 +213,95 @@ export default function VendorDashboard() {
         : [{ month: "This month", revenue: parseFloat(stats?.total_revenue) || 0 }];
 
     return (
-        <div style={{ background: "var(--bg-secondary)", minHeight: "100vh" }}>
-            <div className="max-w-5xl mx-auto px-4 py-10">
+        <div className="bg-[var(--bg)] min-h-screen layout-clearance">
+            <div className="container max-w-7xl mx-auto px-6 lg:px-12 py-12">
 
-                <div className="flex items-start justify-between mb-7 flex-wrap gap-3">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 gap-6">
                     <div>
-                        <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>Vendor Dashboard</h1>
-                        <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+                        <h1 className="text-4xl font-black font-['Playfair_Display'] text-[var(--text)] tracking-tight">Vendor Dashboard</h1>
+                        <p className="text-base text-[var(--text-muted)] mt-2 font-medium">
                             {user?.store_name || "Your ShopLocal store"}
                         </p>
                     </div>
-                    <button onClick={openNewForm} className="btn-primary !text-sm !py-2 !rounded-full flex items-center gap-1.5">
-                        <Plus size={14} /> Add new listing
+                    <button onClick={openNewForm} className="px-6 py-3 bg-[var(--text)] text-white font-black rounded-full hover:bg-[var(--accent)] transition-all shadow-xl flex items-center gap-2">
+                        <Plus size={18} /> Add New Listing
                     </button>
                 </div>
-
-                <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
+                <div className="flex gap-4 mb-10 border-b border-black/5 pb-2 overflow-x-auto">
                     {TABS.map((t) => (
                         <button key={t.k} onClick={() => setTab(t.k)}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition"
-                            style={tab === t.k ? { background: "var(--accent)", color: "white" } : { background: "var(--bg-card)", color: "var(--text-secondary)", border: "1px solid var(--border-light)" }}>
-                            <t.icon size={14} /> {t.l}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-black uppercase tracking-widest whitespace-nowrap transition-all ${tab === t.k ? 'bg-[var(--text)] text-white shadow-xl' : 'bg-transparent text-[var(--text)] hover:bg-black/5'}`}>
+                            <t.icon size={16} /> {t.l}
                         </button>
                     ))}
                 </div>
 
                 {tab === "overview" && (
                     <div className="space-y-5">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {[
                                 { label: "Total Listings", value: stats?.total_products ?? 0, icon: Package, sub: "active products" },
                                 { label: "Revenue", value: formatPrice(parseFloat(stats?.total_revenue) || 0), icon: DollarSign, sub: "all time" },
                                 { label: "Orders", value: stats?.total_orders ?? 0, icon: ShoppingCart, sub: "received" },
                                 { label: "Low Stock", value: stats?.low_stock_count ?? 0, icon: AlertTriangle, sub: "need restocking", warn: true },
                             ].map((s) => (
-                                <div key={s.label} className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
-                                    <div className="flex items-start justify-between mb-2">
-                                        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>{s.label}</p>
-                                        <div className="w-8 h-8 rounded-full flex items-center justify-center"
-                                            style={{ background: s.warn ? "#fef3c7" : "var(--accent-light)" }}>
-                                            <s.icon size={15} style={{ color: s.warn ? "#d97706" : "var(--accent)" }} />
+                                <div key={s.label} className={`glass-morphism rounded-[2rem] p-6 lg:p-8 flex flex-col justify-between min-h-[160px] border ${s.warn ? 'border-amber-200 bg-amber-50/50' : 'border-black/5'}`}>
+                                    <div className="flex items-start justify-between mb-4">
+                                        <p className="text-xs font-black uppercase tracking-widest text-[var(--text-muted)] mt-1">{s.label}</p>
+                                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white shadow-sm shrink-0">
+                                            <s.icon size={18} className={s.warn ? "text-amber-500" : "text-[var(--accent)]"} />
                                         </div>
                                     </div>
-                                    <p className="text-2xl font-bold"
-                                        style={{ color: s.warn && (stats?.low_stock_count || 0) > 0 ? "#d97706" : "var(--text)" }}>
-                                        {s.value}
-                                    </p>
-                                    <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{s.sub}</p>
+                                    <div>
+                                        <p className={`text-4xl font-black mb-1 leading-none ${s.warn && (stats?.low_stock_count || 0) > 0 ? "text-amber-600" : "text-[var(--text)]"}`}>
+                                            {s.value}
+                                        </p>
+                                        <p className="text-sm font-medium text-[var(--text-muted)]">{s.sub}</p>
+                                    </div>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
-                            <h3 className="text-base font-bold mb-4" style={{ color: "var(--text)" }}>Revenue overview</h3>
-                            <ResponsiveContainer width="100%" height={220}>
-                                <BarChart data={chartData} barCategoryGap="30%">
-                                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--text-muted)" }} axisLine={false} tickLine={false} />
-                                    <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} axisLine={false} tickLine={false} />
-                                    <Tooltip contentStyle={{ fontSize: 12, borderRadius: 12, border: "1px solid var(--border-light)", background: "var(--bg-card)" }} />
-                                    <Bar dataKey="revenue" fill="var(--accent)" radius={[6, 6, 0, 0]} />
+                        <div className="glass-morphism rounded-[2rem] p-8 border border-black/5 mb-6">
+                            <h3 className="text-xl font-black font-['Playfair_Display'] text-[var(--text)] mb-8">Revenue Overview</h3>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                    <XAxis dataKey="month" tick={{ fill: "var(--text-muted)", fontWeight: 600, fontSize: 12 }} axisLine={false} tickLine={false} dy={10} />
+                                    <YAxis tick={{ fill: "var(--text-muted)", fontWeight: 600, fontSize: 12 }} axisLine={false} tickLine={false} dx={-10} />
+                                    <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', fontWeight: 700 }} />
+                                    <Bar dataKey="revenue" fill="var(--text)" radius={[8, 8, 8, 8]} maxBarSize={60} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
 
                         {dashData?.low_stock_products?.length > 0 && (
-                            <div className="rounded-2xl p-5" style={{ background: "#fffbeb", border: "1px solid #fde68a" }}>
-                                <h3 className="text-sm font-bold mb-3 flex items-center gap-2" style={{ color: "#92400e" }}>
-                                    <AlertTriangle size={15} /> Low stock alert
+                            <div className="glass-morphism rounded-[2rem] p-6 border border-amber-200 bg-amber-50/50">
+                                <h3 className="text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2 text-amber-600">
+                                    <AlertTriangle size={18} /> Low Stock Alert
                                 </h3>
-                                <div className="grid grid-cols-2 gap-2">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                     {dashData.low_stock_products.map((p) => (
-                                        <div key={p.id} className="flex justify-between text-sm p-2 rounded-xl" style={{ background: "white" }}>
-                                            <span className="line-clamp-1" style={{ color: "var(--text)" }}>{p.name}</span>
-                                            <span className="font-bold ml-2 shrink-0" style={{ color: "#d97706" }}>{p.stock} left</span>
+                                        <div key={p.id} className="flex justify-between items-center text-sm p-4 rounded-[1rem] bg-white shadow-sm border border-amber-100">
+                                            <span className="line-clamp-1 font-bold text-[var(--text)]">{p.name}</span>
+                                            <span className="font-black ml-4 shrink-0 px-3 py-1 bg-amber-100 text-amber-700 rounded-full">{p.stock} left</span>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         )}
 
-                        <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
-                            <h3 className="text-sm font-bold mb-3" style={{ color: "var(--text)" }}>Quick actions</h3>
-                            <div className="flex flex-wrap gap-2">
-                                <button onClick={openNewForm} className="btn-primary !text-sm !py-2 !rounded-full flex items-center gap-1.5">
-                                    <Plus size={13} /> Add listing
+                        <div className="glass-morphism rounded-[2rem] p-8 border border-black/5">
+                            <h3 className="text-sm font-black uppercase tracking-widest text-[var(--text-muted)] mb-6">Quick Actions</h3>
+                            <div className="flex flex-wrap gap-4">
+                                <button onClick={openNewForm} className="px-6 py-3 bg-white text-[var(--text)] border border-black/10 font-bold rounded-full hover:bg-[var(--text)] hover:text-white transition-all shadow-sm flex items-center gap-2">
+                                    <Plus size={16} /> Add Listing
                                 </button>
-                                <button onClick={() => setTab("orders")} className="btn-secondary !text-sm !py-2 !rounded-full flex items-center gap-1.5">
-                                    <ShoppingCart size={13} /> View orders
+                                <button onClick={() => setTab("orders")} className="px-6 py-3 bg-white text-[var(--text)] border border-black/10 font-bold rounded-full hover:bg-[var(--text)] hover:text-white transition-all shadow-sm flex items-center gap-2">
+                                    <ShoppingCart size={16} /> View Orders
                                 </button>
                                 <button onClick={() => { setTab("coupons"); setShowCouponForm(true); }}
-                                    className="btn-secondary !text-sm !py-2 !rounded-full flex items-center gap-1.5">
-                                    <Tag size={13} /> Create coupon
+                                    className="px-6 py-3 bg-white text-[var(--text)] border border-black/10 font-bold rounded-full hover:bg-[var(--text)] hover:text-white transition-all shadow-sm flex items-center gap-2">
+                                    <Tag size={16} /> Create Coupon
                                 </button>
                             </div>
                         </div>
@@ -312,8 +310,7 @@ export default function VendorDashboard() {
 
                 {tab === "products" && (
                     <div>
-                        <div className="rounded-2xl p-4 mb-5 flex flex-wrap gap-3 items-center"
-                            style={{ background: "var(--bg-card)", border: "1px solid var(--border-light)" }}>
+                        <div className="glass-morphism rounded-[2rem] p-6 mb-8 flex flex-wrap gap-4 items-center border border-black/5 shadow-sm">
                             <div className="relative flex-1 min-w-[160px]">
                                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
                                 <input type="text" value={listSearch} onChange={(e) => setListSearch(e.target.value)}
@@ -341,8 +338,7 @@ export default function VendorDashboard() {
 
                         {showForm && (
                             <form onSubmit={handleProductSubmit}
-                                className="rounded-2xl p-5 mb-5 space-y-4 animate-up"
-                                style={{ background: "var(--bg-card)", border: "2px solid var(--accent)" }}>
+                                className="glass-morphism rounded-[2rem] p-8 mb-8 space-y-6 animate-up border border-black/10 shadow-lg">
                                 <div className="flex items-center justify-between">
                                     <h3 className="font-bold text-base" style={{ color: "var(--text)" }}>
                                         {editingId ? "Edit listing" : "New listing"}
@@ -497,7 +493,7 @@ export default function VendorDashboard() {
                                     </div>
                                 </div>
 
-                                {}
+                                { }
 
 
                                 <div className="flex gap-2 pt-1">
@@ -653,8 +649,7 @@ export default function VendorDashboard() {
 
                         {showCouponForm && (
                             <form onSubmit={handleCouponSubmit}
-                                className="rounded-2xl p-5 mb-5 space-y-4 animate-up"
-                                style={{ background: "var(--bg-card)", border: "2px solid var(--accent)" }}>
+                                className="glass-morphism rounded-[2rem] p-8 mb-8 space-y-6 animate-up border border-black/10 shadow-lg">
                                 <h3 className="font-bold" style={{ color: "var(--text)" }}>New discount coupon</h3>
                                 <div className="grid sm:grid-cols-2 gap-3">
                                     <div>

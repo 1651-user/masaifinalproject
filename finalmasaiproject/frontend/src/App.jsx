@@ -19,6 +19,7 @@ const CustomerDashboard = lazy(() => import("./pages/CustomerDashboard"));
 const VendorDashboard = lazy(() => import("./pages/VendorDashboard"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const Categories = lazy(() => import("./pages/Categories"));
 
 function ProtectedRoute({ children, role }) {
     const { user, loading } = useAuth();
@@ -39,19 +40,22 @@ function AppRoutes() {
 
     return (
         <Suspense fallback={<PageFallback />}>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/products/:id" element={<ProductDetail />} />
-                <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
-                <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-                <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
-                <Route path="/dashboard" element={<ProtectedRoute role="customer"><CustomerDashboard /></ProtectedRoute>} />
-                <Route path="/vendor/dashboard" element={<ProtectedRoute role="vendor"><VendorDashboard /></ProtectedRoute>} />
-                <Route path="/admin/dashboard" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
-            </Routes>
+            <div className="layout-clearance">
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/products" element={<Products />} />
+                    <Route path="/products/:id" element={<ProductDetail />} />
+                    <Route path="/categories" element={<Categories />} />
+                    <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+                    <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+                    <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+                    <Route path="/dashboard" element={<ProtectedRoute role="customer"><CustomerDashboard /></ProtectedRoute>} />
+                    <Route path="/vendor/dashboard" element={<ProtectedRoute role="vendor"><VendorDashboard /></ProtectedRoute>} />
+                    <Route path="/admin/dashboard" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
+                </Routes>
+            </div>
         </Suspense>
     );
 }

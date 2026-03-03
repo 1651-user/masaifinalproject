@@ -32,10 +32,8 @@ function Badge({ label, color = "#6366f1" }) {
 
 function KpiCard({ icon: Icon, label, value, sub, color }) {
     return (
-        <div style={{
-            background: "var(--bg-card)", borderRadius: 18, padding: "22px 24px",
-            border: "1px solid var(--border-light)", display: "flex", alignItems: "center", gap: 18,
-            boxShadow: "0 2px 12px rgba(0,0,0,0.06)"
+        <div className="glass-morphism hover-glass" style={{
+            padding: "22px 24px", display: "flex", alignItems: "center", gap: 18,
         }}>
             <div style={{
                 width: 52, height: 52, borderRadius: 14, background: color + "18",
@@ -111,9 +109,9 @@ function OverviewTab() {
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-                {}
-                <div style={{ background: "var(--bg-card)", borderRadius: 18, padding: 24, border: "1px solid var(--border-light)" }}>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, color: "var(--text)", display: "flex", alignItems: "center", gap: 8 }}>
+                { }
+                <div className="glass-morphism" style={{ padding: 24 }}>
+                    <h3 className="font-['Outfit']" style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16, color: "var(--text)", display: "flex", alignItems: "center", gap: 8 }}>
                         <Users size={16} color="#6366f1" /> New Members
                     </h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -135,9 +133,9 @@ function OverviewTab() {
                     </div>
                 </div>
 
-                {}
-                <div style={{ background: "var(--bg-card)", borderRadius: 18, padding: 24, border: "1px solid var(--border-light)" }}>
-                    <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, color: "var(--text)", display: "flex", alignItems: "center", gap: 8 }}>
+                { }
+                <div className="glass-morphism" style={{ padding: 24 }}>
+                    <h3 className="font-['Outfit']" style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 16, color: "var(--text)", display: "flex", alignItems: "center", gap: 8 }}>
                         <ShoppingBag size={16} color="#f59e0b" /> Latest Orders
                     </h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -224,7 +222,7 @@ function UsersTab() {
     return (
         <div>
             {confirm && <ConfirmDialog message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() => setConfirm(null)} />}
-            {}
+            { }
             <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
                 <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
                     <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
@@ -254,7 +252,7 @@ function UsersTab() {
             </div>
 
             {loading ? <Spinner /> : (
-                <div style={{ overflowX: "auto" }}>
+                <div className="glass-morphism" style={{ overflowX: "auto", padding: "12px 24px" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                         <thead>
                             <tr style={{ borderBottom: "2px solid var(--border-light)" }}>
@@ -326,7 +324,7 @@ function UsersTab() {
                 </div>
             )}
 
-            {}
+            { }
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 20, flexWrap: "wrap", gap: 12 }}>
                 <p style={{ fontSize: 13, color: "var(--text-muted)" }}>
                     {pagination.total} user{pagination.total !== 1 ? "s" : ""} total
@@ -382,7 +380,7 @@ function OrdersTab() {
             </div>
 
             {loading ? <Spinner /> : (
-                <div style={{ overflowX: "auto" }}>
+                <div className="glass-morphism" style={{ overflowX: "auto", padding: "12px 24px" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                         <thead>
                             <tr style={{ borderBottom: "2px solid var(--border-light)" }}>
@@ -490,7 +488,7 @@ function ProductsTab() {
             </div>
 
             {loading ? <Spinner /> : (
-                <div style={{ overflowX: "auto" }}>
+                <div className="glass-morphism" style={{ overflowX: "auto", padding: "12px 24px" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                         <thead>
                             <tr style={{ borderBottom: "2px solid var(--border-light)" }}>
@@ -575,7 +573,7 @@ function SettingsTab() {
         adminService.getSettings()
             .then(r => setSettings(s => ({ ...s, ...r.data })))
             .catch(() => {
-                
+
                 toast("Using default settings. Save to persist.", { icon: "ℹ️" });
             })
             .finally(() => setLoading(false));
@@ -601,7 +599,7 @@ function SettingsTab() {
     if (loading) return <Spinner />;
 
     return (
-        <div style={{ maxWidth: 640 }}>
+        <div className="glass-morphism" style={{ maxWidth: 640, padding: 32 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 {fields.map(f => (
                     <div key={f.key}>
@@ -619,7 +617,7 @@ function SettingsTab() {
                     </div>
                 ))}
 
-                {}
+                { }
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", background: "var(--bg-secondary)", borderRadius: 14 }}>
                     <div>
                         <p style={{ fontWeight: 700, fontSize: 14, color: "var(--text)" }}>Maintenance Mode</p>
@@ -659,24 +657,26 @@ export default function AdminDashboard() {
 
     return (
         <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
-            <div style={{
-                background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4c1d95 100%)",
-                padding: "36px clamp(16px, 5vw, 64px) 0"
+            <div className="sticky top-0 z-50 transition-all duration-300" style={{
+                background: "rgba(26,11,17,0.85)", backdropFilter: "blur(16px)",
+                padding: "36px clamp(16px, 5vw, 64px) 0",
+                boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)"
             }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 28 }}>
                     <div style={{
-                        width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,0.15)",
-                        display: "flex", alignItems: "center", justifyContent: "center"
+                        width: 48, height: 48, borderRadius: 14, background: "rgba(255,190,214,0.15)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        border: "1px solid rgba(255,190,214,0.3)"
                     }}>
-                        <Shield size={24} color="white" />
+                        <Shield size={24} color="#ffbed6" />
                     </div>
                     <div>
-                        <h1 style={{ fontSize: 22, fontWeight: 800, color: "white", margin: 0 }}>Admin Panel</h1>
-                        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", margin: 0 }}>Super-Admin · ShopLocal Platform</p>
+                        <h1 className="font-['Playfair_Display']" style={{ fontSize: 28, fontWeight: 900, color: "white", margin: 0, letterSpacing: "-0.02em" }}>Admin Panel</h1>
+                        <p className="font-['Outfit']" style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", margin: 0, letterSpacing: "0.05em", textTransform: "uppercase" }}>Super-Admin · ShopLocal</p>
                     </div>
                 </div>
 
-                {}
+                { }
                 <div style={{ display: "flex", gap: 4, overflowX: "auto" }} className="no-scrollbar">
                     {TABS.map(tab => {
                         const Icon = tab.icon;
@@ -687,7 +687,7 @@ export default function AdminDashboard() {
                                 fontSize: 14, fontWeight: active ? 700 : 500, whiteSpace: "nowrap",
                                 borderRadius: "12px 12px 0 0", border: "none", cursor: "pointer",
                                 background: active ? "var(--bg)" : "transparent",
-                                color: active ? "var(--accent)" : "rgba(255,255,255,0.7)",
+                                color: active ? "var(--text)" : "rgba(255,255,255,0.7)",
                                 transition: "all 0.15s"
                             }}>
                                 <Icon size={15} /> {tab.label}
@@ -697,7 +697,7 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            {}
+            { }
             <div style={{ padding: "32px clamp(16px, 5vw, 64px)", maxWidth: 1400, margin: "0 auto" }}>
                 {activeTab === "overview" && <OverviewTab />}
                 {activeTab === "users" && <UsersTab />}

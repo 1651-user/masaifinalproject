@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Heart, ShoppingCart, Star, Minus, Plus, Truck, Shield, RefreshCw, ChevronLeft, ThumbsUp } from "lucide-react";
 import { productService, reviewService } from "../services";
@@ -7,6 +7,8 @@ import { useAuth } from "../context/AuthContext";
 import { useWishlist } from "../context/WishlistContext";
 import { formatPrice, formatDate } from "../utils/helpers";
 import toast from "react-hot-toast";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 export default function ProductDetail() {
     const { id } = useParams();
@@ -23,6 +25,16 @@ export default function ProductDetail() {
     const wishlisted = user ? isWishlisted(product?.id) : false;
 
     const [editingReviewId, setEditingReviewId] = useState(null);
+    const containerRef = useRef(null);
+
+    useGSAP(() => {
+        if (!loading && product) {
+            const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 1 } });
+            tl.from(".product-image-reveal", { scale: 1.05, opacity: 0, duration: 1.2, clearProps: "all" })
+                .from(".product-info-stagger", { y: 20, opacity: 0, stagger: 0.1, clearProps: "all" }, "-=0.8")
+                .from(".delivery-info-stagger", { x: -10, opacity: 0, stagger: 0.1, clearProps: "all" }, "-=0.4");
+        }
+    }, { scope: containerRef, dependencies: [loading, product] });
 
     useEffect(() => {
         Promise.all([
@@ -104,14 +116,14 @@ export default function ProductDetail() {
     const avgRating = product.avg_rating || 0;
 
     return (
-        <div style={{ background: "var(--bg)" }} className="min-h-screen pb-20">
+        <div ref={containerRef} style={{ background: "var(--bg)" }} className="min-h-screen pb-20">
             <div className="max-w-5xl mx-auto px-6 py-8">
                 <Link to="/products" className="inline-flex items-center gap-1 text-sm mb-8 hover:underline" style={{ color: "var(--text-muted)" }}>
                     <ChevronLeft size={14} /> Back to results
                 </Link>
 
                 <div className="grid md:grid-cols-2 gap-12">
-                    <div>
+                    <div className="product-image-reveal">
                         <div className="relative aspect-square rounded-2xl overflow-hidden mb-3" style={{ background: "var(--bg-secondary)" }}>
                             <img src={images[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
                             {user?.role !== "vendor" && (
@@ -135,16 +147,16 @@ export default function ProductDetail() {
                         )}
                     </div>
 
-                    <div className="animate-up">
+                    <div>
                         {product.users?.store_name && (
-                            <p className="text-sm font-semibold mb-1" style={{ color: "var(--accent)" }}>{product.users.store_name}</p>
+                            <p className="text-sm font-semibold mb-1 product-info-stagger" style={{ color: "var(--accent)" }}>{product.users.store_name}</p>
                         )}
                         {product.categories?.name && (
-                            <p className="text-xs uppercase tracking-wide mb-2" style={{ color: "var(--text-muted)" }}>{product.categories.name}</p>
+                            <p className="text-xs uppercase tracking-wide mb-2 product-info-stagger" style={{ color: "var(--text-muted)" }}>{product.categories.name}</p>
                         )}
-                        <h1 className="text-2xl font-bold leading-snug mb-3" style={{ color: "var(--text)" }}>{product.name}</h1>
+                        <h1 className="text-2xl font-bold leading-snug mb-3 product-info-stagger" style={{ color: "var(--text)" }}>{product.name}</h1>
 
-                        <div className="flex items-center gap-2 mb-4">
+                        <div className="flex items-center gap-2 mb-4 product-info-stagger">
                             <div className="flex items-center gap-0.5">
                                 {[...Array(5)].map((_, i) => (
                                     <Star key={i} size={15} className={i < Math.round(avgRating) ? "fill-[#e56000] text-[#e56000]" : "text-gray-300"} />
@@ -154,7 +166,7 @@ export default function ProductDetail() {
                             <span className="text-sm" style={{ color: "var(--text-muted)" }}>({reviews.length} reviews)</span>
                         </div>
 
-                        <div className="flex items-baseline gap-2 mb-2">
+                        <div className="flex items-baseline gap-2 mb-2 product-info-stagger">
                             <span className="text-2xl font-bold" style={{ color: "var(--text)" }}>{formatPrice(product.price)}</span>
                             {product.compare_price > product.price && (
                                 <>
@@ -167,7 +179,7 @@ export default function ProductDetail() {
                             <p className="text-sm font-semibold mb-3" style={{ color: "#c45000" }}>Only {product.stock} left in stock!</p>
                         )}
 
-                        <p className="text-sm leading-relaxed mb-6" style={{ color: "var(--text-secondary)" }}>{product.description}</p>
+                        <p className="text-sm leading-relaxed mb-6 product-info-stagger" style={{ color: "var(--text-secondary)" }}>{product.description}</p>
 
                         {product.stock > 0 ? (
                             user?.role === "vendor" ? (
@@ -176,7 +188,7 @@ export default function ProductDetail() {
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    <div>
+                                    <div className="product-info-stagger">
                                         <p className="text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Quantity</p>
                                         <div className="inline-flex items-center border-2 rounded-full" style={{ borderColor: "var(--border)" }}>
                                             <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 py-2.5 hover:bg-[var(--bg-secondary)] rounded-l-full transition"><Minus size={14} style={{ color: "var(--text)" }} /></button>
@@ -184,7 +196,7 @@ export default function ProductDetail() {
                                             <button onClick={() => setQuantity(Math.min(product.stock, quantity + 1))} className="px-4 py-2.5 hover:bg-[var(--bg-secondary)] rounded-r-full transition"><Plus size={14} style={{ color: "var(--text)" }} /></button>
                                         </div>
                                     </div>
-                                    <div className="flex gap-3">
+                                    <div className="flex gap-3 product-info-stagger">
                                         <button onClick={handleAddToCart} className="btn-primary flex-1 !justify-center !text-base !py-3">
                                             <ShoppingCart size={17} /> Add to cart
                                         </button>
@@ -206,7 +218,7 @@ export default function ProductDetail() {
                                 { icon: Shield, text: "Secure payment & buyer protection" },
                                 { icon: RefreshCw, text: "Returns accepted within 30 days" },
                             ].map((t) => (
-                                <div key={t.text} className="flex items-center gap-2.5 text-sm" style={{ color: "var(--text-secondary)" }}>
+                                <div key={t.text} className="flex items-center gap-2.5 text-sm delivery-info-stagger" style={{ color: "var(--text-secondary)" }}>
                                     <t.icon size={16} style={{ color: "var(--accent)" }} /> {t.text}
                                 </div>
                             ))}

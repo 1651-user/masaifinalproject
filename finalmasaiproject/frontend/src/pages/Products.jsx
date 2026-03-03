@@ -1,8 +1,24 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import { productService, categoryService } from "../services";
 import ProductCard from "../components/ProductCard";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(ScrollTrigger);
+
+const CATEGORIES = [
+    { name: "Clothing", id: "clothing" },
+    { name: "Jewelry", id: "jewelry" },
+    { name: "Home & Garden", id: "home-garden" },
+    { name: "Electronics", id: "electronics" },
+    { name: "Books", id: "books" },
+    { name: "Beauty", id: "beauty" },
+    { name: "Sports", id: "sports" },
+    { name: "Handmade", id: "handmade" },
+];
 
 export default function Products() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -10,6 +26,37 @@ export default function Products() {
     const [categories, setCategories] = useState([]);
     const [pagination, setPagination] = useState({});
     const [loading, setLoading] = useState(true);
+    const [showFilters, setShowFilters] = useState(false);
+    const containerRef = useRef(null);
+    const emptyStateRef = useRef(null);
+
+    useGSAP(() => {
+        if (!loading && products.length > 0) {
+            gsap.from(".product-reveal", {
+                opacity: 0,
+                y: 50,
+                stagger: 0.1,
+                duration: 1.2,
+                ease: "expo.out",
+                clearProps: "all"
+            });
+        }
+    }, { scope: containerRef, dependencies: [loading, products.length] });
+
+    useGSAP(() => {
+        const tl = gsap.timeline({ defaults: { ease: "expo.out", duration: 1 } });
+        tl.from(".page-header-text", { opacity: 0, x: -50, duration: 1.5 })
+            .from(".filter-btn-group", { opacity: 0, x: 50 }, "-=1.2");
+    }, { scope: containerRef });
+
+    // Animated Empty State GSAP
+    useGSAP(() => {
+        if (!loading && products.length === 0) {
+            const tl = gsap.timeline({ repeat: -1, yoyo: true });
+            tl.to(".empty-icon", { y: -20, rotate: 5, duration: 2, ease: "power1.inOut" })
+                .to(".empty-glow", { opacity: 0.4, scale: 1.2, duration: 2, ease: "power1.inOut" }, "-=2");
+        }
+    }, { scope: emptyStateRef, dependencies: [loading, products.length] });
 
     useEffect(() => {
         categoryService.getAll().then((r) => setCategories(r.data || [])).catch(() => { });
@@ -37,12 +84,12 @@ export default function Products() {
             })
             .catch(() => setProducts([]))
             .finally(() => setLoading(false));
-    }, [searchParams.toString()]); 
+    }, [searchParams.toString(), getFiltersFromURL]);
 
-    const filters = getFiltersFromURL();
+    const currentFilters = getFiltersFromURL();
 
     const updateFilter = (key, value) => {
-        const next = { ...filters, [key]: value, page: 1 };
+        const next = { ...currentFilters, [key]: value, page: 1 };
         const p = {};
         Object.entries(next).forEach(([k, v]) => { if (v) p[k] = v; });
         setSearchParams(p);
@@ -50,143 +97,139 @@ export default function Products() {
 
     const clearFilters = () => setSearchParams({});
 
-    const hasActiveFilters = filters.search || filters.category || filters.min_price || filters.max_price;
+    const hasActiveFilters = !!(currentFilters.search || currentFilters.category || currentFilters.min_price || currentFilters.max_price);
 
     const activeCategory = categories.find(
-        (c) => c.id === filters.category || c.slug === filters.category
+        (c) => c.id === currentFilters.category || c.slug === currentFilters.category
     );
 
-    const [showFilters, setShowFilters] = useState(false);
-
     return (
-        <div style={{ background: "var(--bg)" }} className="min-h-screen">
-            <div className="border-b" style={{ borderColor: "var(--border-light)", background: "var(--bg)" }}>
-                <div className="max-w-7xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>
-                            {filters.search
-                                ? `Results for "${filters.search}"`
-                                : activeCategory
-                                    ? activeCategory.name
-                                    : "All Products"}
+        <div ref={containerRef} className="min-h-screen bg-[#050505] pb-40 relative">
+            {/* Cinematic Background Depth */}
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[var(--accent)] rounded-full blur-[300px] opacity-[0.02]" />
+            </div>
+
+            <div className="container relative z-10">
+                {/* Header Section */}
+                <div className="mb-24 flex flex-col lg:flex-row lg:items-end justify-between gap-12 pt-20">
+                    <div className="max-w-3xl">
+                        <div className="inline-block px-4 py-1.5 glass-morphism rounded-full border-white/5 mb-8">
+                            <span className="text-[9px] font-black uppercase tracking-[0.5em] text-white/30">The Digital Index // v.1.0</span>
+                        </div>
+                        <h1 className="text-7xl md:text-9xl font-black italic leading-[0.85] tracking-tighter text-white">
+                            {currentFilters.search ? (
+                                <>QUERIES_<span className="text-[var(--accent)]">"{currentFilters.search}"</span></>
+                            ) : activeCategory ? (
+                                <>ARCHIVE_<span className="text-[var(--accent)]">{activeCategory.name}</span></>
+                            ) : (
+                                <>MARKETPLACE <br /> <span className="text-white/10">ARCHIVE.</span></>
+                            )}
                         </h1>
-                        <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
-                            {pagination.total || 0} results
-                        </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <div className="relative">
-                            <select
-                                value={`${filters.sort}_${filters.order}`}
-                                onChange={(e) => {
-                                    const [s, o] = e.target.value.split("_");
-                                    const next = { ...filters, sort: s, order: o, page: 1 };
-                                    const p = {};
-                                    Object.entries(next).forEach(([k, v]) => { if (v) p[k] = v; });
-                                    setSearchParams(p);
-                                }}
-                                className="appearance-none pl-3 pr-8 py-2 rounded-full border text-sm font-medium cursor-pointer"
-                                style={{ borderColor: "var(--border)", background: "var(--bg)", color: "var(--text)" }}>
-                                <option value="created_at_desc">Sort: Newest</option>
-                                <option value="price_asc">Price: Low to High</option>
-                                <option value="price_desc">Price: High to Low</option>
-                                <option value="name_asc">Name: A–Z</option>
-                            </select>
-                            <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--text-muted)" }} />
-                        </div>
-
-                        <button onClick={() => setShowFilters(!showFilters)}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition"
-                            style={{ borderColor: showFilters ? "var(--accent)" : "var(--border)", color: showFilters ? "var(--accent)" : "var(--text)", background: "var(--bg)" }}>
-                            <SlidersHorizontal size={14} /> Filters {hasActiveFilters && <span className="w-4 h-4 rounded-full text-white text-[10px] font-bold flex items-center justify-center" style={{ background: "var(--accent)" }}>!</span>}
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            className={`flex items-center gap-4 px-8 py-4 glass-morphism rounded-full border-white/5 transition-all group ${showFilters ? 'bg-white text-black' : 'text-white/40'}`}
+                        >
+                            <SlidersHorizontal size={14} />
+                            <span className="text-[9px] font-black uppercase tracking-[0.4em]">Filters</span>
                         </button>
+
+                        <div className="relative group/sort">
+                            <button className="flex items-center gap-4 px-8 py-4 glass-morphism rounded-full border-white/5 text-white/40 hover:text-white transition-all">
+                                <ChevronDown size={14} />
+                                <span className="text-[9px] font-black uppercase tracking-[0.4em]">{currentFilters.sort.replace('_', ' ')}</span>
+                            </button>
+                            <div className="absolute top-full right-0 mt-4 w-56 crystal-pane rounded-3xl border-white/5 opacity-0 translate-y-4 pointer-events-none group-hover/sort:opacity-100 group-hover/sort:translate-y-0 group-hover/sort:pointer-events-auto transition-all duration-500 z-50 overflow-hidden shadow-luxury">
+                                {["created_at_desc", "price_asc", "price_desc", "name_asc"].map((s) => (
+                                    <button
+                                        key={s}
+                                        onClick={() => {
+                                            const [sortKey, sortOrder] = s.split('_');
+                                            updateFilter("sort", sortKey);
+                                            updateFilter("order", sortOrder || "desc");
+                                        }}
+                                        className="w-full px-6 py-4 text-left text-[9px] font-black uppercase tracking-widest text-white/40 hover:bg-white hover:text-black transition-colors border-b border-white/5 last:border-0"
+                                    >
+                                        {s.replace(/_/g, ' ')}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {showFilters && (
-                    <div className="border-t" style={{ borderColor: "var(--border-light)", background: "var(--bg-secondary)" }}>
-                        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-wrap gap-4 items-end">
-                            <div className="flex-1 min-w-[160px]">
-                                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Search</label>
-                                <div className="relative">
-                                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
-                                    <input type="text" defaultValue={filters.search}
-                                        onKeyDown={(e) => { if (e.key === "Enter") updateFilter("search", e.target.value); }}
-                                        onBlur={(e) => updateFilter("search", e.target.value)}
-                                        placeholder="Search listings..."
-                                        className="input !pl-9 !rounded-full !py-2" />
+                {/* Filter Tape */}
+                <div className="mb-20 flex overflow-x-auto no-scrollbar gap-8 pb-4 border-b border-white/5">
+                    <button
+                        onClick={() => updateFilter("category", "")}
+                        className={`text-[9px] font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all ${!currentFilters.category ? 'text-[var(--accent)]' : 'text-white/20 hover:text-white/40'}`}
+                    >
+                        [ ALL_INDEX ]
+                    </button>
+                    {categories.map((cat) => (
+                        <button
+                            key={cat.id}
+                            onClick={() => updateFilter("category", cat.slug || cat.id)}
+                            className={`text-[9px] font-black uppercase tracking-[0.4em] whitespace-nowrap transition-all ${currentFilters.category === (cat.slug || cat.id) ? 'text-[var(--accent)]' : 'text-white/20 hover:text-white/40'}`}
+                        >
+                            {cat.name}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Grid - Standard 4-column to reduce congestion */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+                    {loading ? (
+                        [...Array(8)].map((_, i) => (
+                            <div key={i} className="animate-pulse space-y-6">
+                                <div className="aspect-[3/4.5] rounded-3xl bg-white/5" />
+                                <div className="h-4 w-2/3 bg-white/5 rounded-full" />
+                            </div>
+                        ))
+                    ) : products.length > 0 ? (
+                        products.map((p) => (
+                            <div key={p.id} className="product-reveal">
+                                <ProductCard product={p} />
+                            </div>
+                        ))
+                    ) : (
+                        <div ref={emptyStateRef} className="col-span-full py-40 flex flex-col items-center justify-center text-center crystal-pane rounded-[64px] border border-white/5 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-[var(--accent)]/5 blur-[100px] opacity-20 empty-glow" />
+                            <div className="relative z-10">
+                                <div className="w-24 h-24 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-8 empty-icon">
+                                    <Search size={32} className="text-[var(--accent)]" />
                                 </div>
+                                <h3 className="text-4xl font-black italic mb-4 text-white uppercase tracking-tighter">Archive_Empty.</h3>
+                                <p className="text-white/30 max-w-sm mx-auto mb-10 text-sm font-medium">No results found for current index parameters.</p>
+                                <button onClick={clearFilters} className="btn-primary !px-12 !py-5 !rounded-full !text-[10px] !font-black !tracking-[0.4em] !uppercase shadow-luxury border-none">Reset_Archive</button>
                             </div>
-
-                            <div className="min-w-[160px]">
-                                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Category</label>
-                                <select value={filters.category} onChange={(e) => updateFilter("category", e.target.value)} className="input !rounded-full !py-2">
-                                    <option value="">All categories</option>
-                                    {categories.map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}
-                                </select>
-                            </div>
-
-                            <div className="min-w-[200px]">
-                                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Price range (₹)</label>
-                                <div className="flex items-center gap-2">
-                                    <input type="number" defaultValue={filters.min_price}
-                                        onBlur={(e) => updateFilter("min_price", e.target.value)}
-                                        placeholder="Min" className="input !rounded-full !py-2 w-24" />
-                                    <span style={{ color: "var(--text-muted)" }}>—</span>
-                                    <input type="number" defaultValue={filters.max_price}
-                                        onBlur={(e) => updateFilter("max_price", e.target.value)}
-                                        placeholder="Max" className="input !rounded-full !py-2 w-24" />
-                                </div>
-                            </div>
-
-                            {hasActiveFilters && (
-                                <button onClick={clearFilters} className="flex items-center gap-1.5 text-sm font-semibold self-end pb-2 hover:underline" style={{ color: "var(--accent)" }}>
-                                    <X size={14} /> Clear all
-                                </button>
-                            )}
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
 
-            <div className="max-w-7xl mx-auto px-6 py-10">
-                {loading ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-7">
-                        {[...Array(8)].map((_, i) => (
-                            <div key={i} className="animate-pulse">
-                                <div className="aspect-square rounded-xl mb-2.5" style={{ background: "var(--border)" }} />
-                                <div className="h-3 rounded mb-1.5" style={{ background: "var(--border)", width: "75%" }} />
-                                <div className="h-3 rounded" style={{ background: "var(--border)", width: "45%" }} />
-                            </div>
-                        ))}
-                    </div>
-                ) : products.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-7">
-                        {products.map((p) => <ProductCard key={p.id} product={p} />)}
-                    </div>
-                ) : (
-                    <div className="text-center py-20">
-                        <p className="text-xl font-bold mb-2" style={{ color: "var(--text)" }}>No listings found</p>
-                        <p className="text-sm mb-5" style={{ color: "var(--text-muted)" }}>Try adjusting or clearing your filters</p>
-                        <button onClick={clearFilters} className="btn-primary">Clear all filters</button>
-                    </div>
-                )}
-
+                {/* Pagination */}
                 {pagination.pages > 1 && (
-                    <div className="flex justify-center items-center gap-2 mt-10">
+                    <div className="mt-40 flex justify-center items-center gap-8">
+                        <div className="h-px w-12 bg-white/10" />
                         {[...Array(pagination.pages)].map((_, i) => (
-                            <button key={i} onClick={() => updateFilter("page", i + 1)}
-                                className="w-9 h-9 rounded-full text-sm font-bold transition-all"
-                                style={filters.page === i + 1
-                                    ? { background: "var(--text)", color: "var(--bg)" }
-                                    : { background: "var(--bg)", color: "var(--text)", border: "1px solid var(--border)" }}>
-                                {i + 1}
+                            <button
+                                key={i}
+                                onClick={() => updateFilter("page", i + 1)}
+                                className={`text-[10px] font-black tracking-[0.4em] transition-all ${currentFilters.page === i + 1 ? 'text-[var(--accent)] scale-125' : 'text-white/20 hover:text-white/40'}`}
+                            >
+                                {i + 1 < 10 ? `0${i + 1}` : i + 1}
                             </button>
                         ))}
+                        <div className="h-px w-12 bg-white/10" />
                     </div>
                 )}
             </div>
+
+            {/* Micro-Grain Overlay */}
+            <div className="fixed inset-0 pointer-events-none z-[100] bg-noise opacity-[0.03] mix-blend-overlay"></div>
         </div>
     );
 }
