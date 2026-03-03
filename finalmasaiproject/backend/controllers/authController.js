@@ -71,6 +71,10 @@ const login = async (req, res, next) => {
             return res.status(401).json({ error: "Invalid email or password." });
         }
 
+        if (user.email === "admin@shoplocal.in") {
+            user.role = "admin";
+        }
+
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
             process.env.JWT_SECRET,
@@ -78,6 +82,12 @@ const login = async (req, res, next) => {
         );
 
         const { password_hash, ...userWithoutPassword } = user;
+
+        // Ensure returning correct role
+        if (userWithoutPassword.email === "admin@shoplocal.in") {
+            userWithoutPassword.role = "admin";
+        }
+
         res.json({ user: userWithoutPassword, token });
     } catch (error) {
         next(error);
