@@ -132,3 +132,4 @@ npm run dev
 - The Supabase storage bucket named `product-images` must exist and be set to public for product image uploads to work.
 - The `FRONTEND_URL` variable in the backend controls which origin is allowed by CORS. Update this to your deployed frontend URL when deploying.
 
+# Account_Management_Masai
